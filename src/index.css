@@ -1,0 +1,1808 @@
+:root {
+  /* DEFAULT MAINFRAME (MATRIX) */
+  --bg: #050505; 
+  --panel: #0a0a0a; 
+  --text: #00ff41; 
+  --accent: #00ff41; 
+  --font: 'Courier New', Courier, monospace;
+  
+  /* Geometric Variables */
+  --panel-border: 1px solid var(--accent);
+  --panel-radius: 0px;
+  --panel-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+  --clip-path: none;
+  
+  /* Header Variables */
+  --header-bg: transparent;
+  --header-color: var(--accent);
+  --header-padding: 0px 0px 10px 0px;
+  --header-margin: 0 0 15px 0;
+  --header-border: 1px dashed var(--accent);
+  --tracking: normal;
+}
+
+[data-theme="cyberpunk"] {
+  --bg: #02040a; 
+  --panel: rgba(10, 16, 30, 0.85); 
+  --text: #00e5ff; 
+  --accent: #ff0055;
+  --font: 'Segoe UI', Roboto, sans-serif;
+  
+  --panel-border: none;
+  --panel-radius: 0px;
+  --panel-shadow: none;
+  /* Classic Fictional UI dog-ear cuts */
+  --clip-path: polygon(25px 0, 100% 0, 100% calc(100% - 25px), calc(100% - 25px) 100%, 0 100%, 0 25px);
+  
+  /* Translucent full-bleed headers */
+  --header-bg: linear-gradient(90deg, rgba(0, 229, 255, 0.15) 0%, transparent 100%);
+  --header-color: #00e5ff;
+  --header-padding: 10px 15px;
+  --header-margin: -20px -20px 15px -20px;
+  --header-border: none;
+  --tracking: 2px;
+}
+
+/* =========================================
+   CYBERPUNK STRUCTURAL OVERRIDES 
+   ========================================= */
+
+/* The Core Diagnostics HUD */
+[data-theme="cyberpunk"] .cp-hud-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+[data-theme="cyberpunk"] .cp-hud-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+[data-theme="cyberpunk"] .cp-hud-label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #fff;
+}
+[data-theme="cyberpunk"] .cp-hud-label span {
+  color: var(--text);
+}
+[data-theme="cyberpunk"] .cp-hud-bar-bg {
+  width: 100%;
+  height: 12px;
+  background: rgba(0, 229, 255, 0.1);
+  /* Slices the right edge off the bar container */
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0 100%);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+}
+[data-theme="cyberpunk"] .cp-hud-bar-fill {
+  height: 100%;
+  background: var(--text);
+  box-shadow: 0 0 10px var(--text);
+  transition: width 0.5s ease-in-out;
+}
+[data-theme="cyberpunk"] .cp-thermal {
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+  margin-top: 5px;
+}
+[data-theme="cyberpunk"] .cp-hud-value {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: var(--text);
+  text-shadow: 0 0 8px var(--text);
+}
+[data-theme="cyberpunk"] .cp-warning {
+  color: #ff0055;
+  text-shadow: 0 0 10px #ff0055;
+  animation: cp-pulse 1s infinite alternate;
+}
+@keyframes cp-pulse {
+  from { opacity: 1; }
+  to { opacity: 0.5; }
+}
+
+/* The N54 Corporate Broadcast */
+[data-theme="cyberpunk"] .cp-news-feed {
+  position: relative;
+  padding-left: 15px;
+  border-left: 2px solid rgba(0, 229, 255, 0.3);
+}
+[data-theme="cyberpunk"] .cp-news-item {
+  position: relative;
+  background: rgba(0, 229, 255, 0.05);
+  padding: 8px 12px;
+  margin-bottom: 8px !important;
+  /* Aggressive tech-cuts on the corners of each news block */
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  border-left: 2px solid var(--accent);
+  transition: all 0.2s ease;
+}
+[data-theme="cyberpunk"] .cp-news-item:hover {
+  background: rgba(0, 229, 255, 0.15);
+  border-left: 4px solid var(--accent);
+}
+[data-theme="cyberpunk"] .global-news a.interactive-link {
+  color: #fff;
+  text-shadow: none;
+}
+[data-theme="cyberpunk"] .global-news a.interactive-link:hover {
+  color: var(--text);
+  transform: none; /* Disable standard slide to use the block-hover effect instead */
+}
+
+/* ICE-Breach Node Map (Network Radar) */
+[data-theme="cyberpunk"] .cp-radar-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+[data-theme="cyberpunk"] .cp-node {
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  padding: 10px;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="cyberpunk"] .cp-node::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 4px; height: 100%;
+}
+[data-theme="cyberpunk"] .cp-node-online::before { background: var(--text); }
+[data-theme="cyberpunk"] .cp-node-offline::before { background: #ff0055; box-shadow: 0 0 10px #ff0055; }
+[data-theme="cyberpunk"] .cp-node-id {
+  font-size: 0.7em;
+  color: var(--text);
+  opacity: 0.7;
+  margin-bottom: 2px;
+}
+[data-theme="cyberpunk"] .cp-node-name {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #fff;
+}
+[data-theme="cyberpunk"] .cp-node-status {
+  font-size: 0.8em;
+  margin-top: 5px;
+  letter-spacing: 1px;
+}
+[data-theme="cyberpunk"] .cp-node-online .cp-node-status { color: var(--text); }
+[data-theme="cyberpunk"] .cp-node-offline .cp-node-status {
+  color: #ff0055;
+  animation: cp-pulse 1s infinite alternate;
+}
+
+/* Data Ports (Shortcuts) */
+[data-theme="cyberpunk"] .cp-shortcuts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+[data-theme="cyberpunk"] .cp-shortcut-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid var(--text);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 15px 10px;
+  position: relative;
+  clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+  transition: all 0.2s ease;
+}
+[data-theme="cyberpunk"] .cp-shortcut-decor {
+  position: absolute;
+  top: 5px; right: 5px;
+  width: 5px; height: 5px;
+  background: var(--text);
+}
+[data-theme="cyberpunk"] .cp-shortcut-btn:hover {
+  background: rgba(0, 229, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+  color: #fff;
+  text-shadow: 0 0 8px var(--text);
+}
+[data-theme="cyberpunk"] .cp-delete-btn {
+  position: absolute;
+  top: -5px; right: -5px;
+  background: #ff0055 !important;
+  color: #fff !important;
+  border: none !important;
+  z-index: 10;
+  padding: 2px 6px !important;
+  cursor: pointer;
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+
+/* Local Chrono (Sys Time) */
+[data-theme="cyberpunk"] .cp-time-container {
+  text-align: right;
+  border-right: 4px solid var(--accent);
+  padding-right: 20px;
+  margin-right: 10px;
+}
+[data-theme="cyberpunk"] .cp-time-large {
+  font-size: 3.8em;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
+  letter-spacing: 4px;
+  line-height: 1;
+}
+[data-theme="cyberpunk"] .cp-date-small {
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+[data-theme="cyberpunk"] .cp-hex-deco {
+  font-family: 'Courier New', monospace;
+  color: #ff0055;
+  font-size: 0.85em;
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+
+/* Op Log (Agenda Sync) */
+[data-theme="cyberpunk"] .cp-agenda-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 15px;
+  align-items: center;
+  background: rgba(0, 229, 255, 0.05);
+  border-left: 2px solid var(--accent);
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+  transition: all 0.3s ease;
+}
+[data-theme="cyberpunk"] .cp-agenda-item:hover {
+  background: rgba(0, 229, 255, 0.15);
+  border-left-width: 4px;
+}
+[data-theme="cyberpunk"] .cp-agenda-past {
+  opacity: 0.4;
+  border-left-color: #ff0055;
+  background: rgba(255, 0, 85, 0.05);
+}
+[data-theme="cyberpunk"] .cp-agenda-past:hover {
+  background: rgba(255, 0, 85, 0.1);
+}
+[data-theme="cyberpunk"] .cp-agenda-time {
+  color: var(--text);
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+[data-theme="cyberpunk"] .cp-agenda-desc {
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+[data-theme="cyberpunk"] .cp-agenda-status {
+  font-size: 0.75em;
+  letter-spacing: 2px;
+  color: var(--text);
+}
+[data-theme="cyberpunk"] .cp-agenda-past .cp-agenda-status {
+  color: #ff0055;
+  text-shadow: 0 0 5px #ff0055;
+}
+
+/* Atmospheric Scanner (Weather) */
+[data-theme="cyberpunk"] .cp-atmos-status {
+  font-family: 'Courier New', monospace;
+  color: var(--text);
+  opacity: 0.7;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+[data-theme="cyberpunk"] .cp-atmos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+[data-theme="cyberpunk"] .cp-atmos-block {
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  border-left: 3px solid var(--text);
+}
+[data-theme="cyberpunk"] .cp-atmos-label {
+  font-size: 0.7em;
+  color: var(--text);
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+}
+[data-theme="cyberpunk"] .cp-atmos-val {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+[data-theme="cyberpunk"] .cp-atmos-val span {
+  font-size: 0.5em;
+  color: var(--text);
+  text-shadow: none;
+}
+[data-theme="cyberpunk"] .cp-atmos-warning {
+  border-left-color: #ff0055;
+  background: rgba(255, 0, 85, 0.05);
+}
+[data-theme="cyberpunk"] .cp-atmos-warning .cp-atmos-label {
+  color: #ff0055;
+}
+
+/* Decrypted Shard (Data Vault) */
+[data-theme="cyberpunk"] .cp-shard-body {
+  position: relative;
+}
+[data-theme="cyberpunk"] .cp-shard-container {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  padding: 20px;
+  position: relative;
+  clip-path: polygon(0 15px, 15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+}
+[data-theme="cyberpunk"] .cp-shard-container::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 4px;
+  background: var(--text);
+  box-shadow: 0 0 10px var(--text);
+}
+[data-theme="cyberpunk"] .cp-shard-badge {
+  position: absolute;
+  top: -1px; right: 20px;
+  background: var(--text);
+  color: #000;
+  font-weight: bold;
+  font-size: 0.7em;
+  padding: 2px 10px;
+  letter-spacing: 2px;
+}
+[data-theme="cyberpunk"] .cp-shard-text {
+  font-size: 1.1em;
+  line-height: 1.6;
+  color: #fff;
+  margin-top: 10px;
+  font-style: italic;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+[data-theme="cyberpunk"] .cp-shard-meta {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(0, 229, 255, 0.3);
+  font-family: 'Courier New', monospace;
+  font-size: 0.85em;
+  color: #fff;
+}
+[data-theme="cyberpunk"] .cp-meta-label {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+/* Satellite Uplink (Orbital Tracking) */
+[data-theme="cyberpunk"] .cp-orbital-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+[data-theme="cyberpunk"] .cp-telemetry-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+[data-theme="cyberpunk"] .cp-tel-block {
+  flex: 1;
+  min-width: 150px;
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-top: 3px solid var(--text);
+  padding: 10px 15px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+[data-theme="cyberpunk"] .cp-tel-label {
+  font-size: 0.7em;
+  color: var(--text);
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+}
+[data-theme="cyberpunk"] .cp-tel-val {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+[data-theme="cyberpunk"] .cp-tel-val span {
+  font-size: 0.4em;
+  color: var(--text);
+  text-shadow: none;
+  letter-spacing: 1px;
+}
+[data-theme="cyberpunk"] .cp-tel-dist {
+  border-top-color: #ff0055;
+  background: rgba(255, 0, 85, 0.05);
+}
+[data-theme="cyberpunk"] .cp-tel-dist .cp-tel-label {
+  color: #ff0055;
+}
+
+/* The Tactical Map Wrapper */
+[data-theme="cyberpunk"] .cp-map-wrapper {
+  position: relative;
+  width: 100%;
+  /* Removed max-width: 800px so it spans the entire grid! */
+  border: 2px solid var(--accent);
+  background: #000;
+  clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+  overflow: hidden;
+  height: 450px; /* Cinematic widescreen height */
+}
+
+/* The Magic Filter: Turns any map into a glowing tactical feed */
+[data-theme="cyberpunk"] .cp-tactical-map {
+  filter: grayscale(100%) sepia(100%) hue-rotate(130deg) saturate(400%) brightness(0.8) contrast(1.5);
+  opacity: 0.85;
+  display: block;
+}
+
+/* HUD Overlay Elements */
+[data-theme="cyberpunk"] .cp-crosshair-h {
+  position: absolute;
+  top: 50%; left: 0;
+  width: 100%; height: 1px;
+  background: rgba(0, 229, 255, 0.3);
+  z-index: 10;
+  pointer-events: none;
+}
+[data-theme="cyberpunk"] .cp-crosshair-v {
+  position: absolute;
+  top: 0; left: 50%;
+  width: 1px; height: 100%;
+  background: rgba(0, 229, 255, 0.3);
+  z-index: 10;
+  pointer-events: none;
+}
+[data-theme="cyberpunk"] .cp-target-box {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 60px; height: 60px;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--accent);
+  z-index: 10;
+  pointer-events: none;
+}
+[data-theme="cyberpunk"] .cp-target-box::after {
+  content: 'TARGET_LOCK';
+  position: absolute;
+  top: -15px; left: 65px;
+  color: var(--accent);
+  font-size: 0.6em;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+/* The Sweeping Radar Scanner */
+[data-theme="cyberpunk"] .cp-scanline-sweep {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 20px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 229, 255, 0.4), transparent);
+  z-index: 20;
+  pointer-events: none;
+  animation: cp-sweep 4s linear infinite;
+}
+@keyframes cp-sweep {
+  0% { top: -20px; }
+  100% { top: 100%; }
+}
+
+[data-theme="fallout"] {
+  --bg: #050500; 
+  --panel: #111100; 
+  --text: #FFB000; 
+  --accent: #FFB000; 
+  --font: 'Courier New', monospace;
+  
+  --panel-border: 2px solid var(--accent);
+  --panel-radius: 12px; /* Soft CRT curving */
+  --panel-shadow: inset 0 0 15px rgba(255, 176, 0, 0.2);
+  --clip-path: none;
+  
+  --header-bg: var(--accent);
+  --header-color: var(--bg);
+  --header-padding: 5px 10px;
+  --header-margin: 0 0 15px 0;
+  --header-border: none;
+}
+
+[data-theme="modern-dark"] {
+  --bg: #121212; 
+  --panel: #1e1e1e; 
+  --text: #e0e0e0; 
+  --accent: #bb86fc;
+  --font: 'Segoe UI', Roboto, Helvetica, sans-serif;
+  
+  --panel-border: 1px solid #333;
+  --panel-radius: 16px;
+  --panel-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  --clip-path: none;
+  
+  --header-bg: transparent;
+  --header-color: var(--accent);
+  --header-padding: 0px 0px 10px 0px;
+  --header-margin: 0 0 15px 0;
+  --header-border: 1px solid #333;
+}
+
+[data-theme="90s"] {
+  --bg: #008080; 
+  --panel: #c0c0c0; 
+  --text: #000000; 
+  --accent: #000080; 
+  --font: 'MS Sans Serif', 'Tahoma', sans-serif;
+  
+  --panel-border: none;
+  --panel-radius: 0px;
+  /* Classic Windows 95 3D Outset effect */
+  --panel-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #dfdfdf, inset -2px -2px #808080, inset 2px 2px #fff;
+  --clip-path: none;
+  
+  /* Classic Blue Title Bar */
+  --header-bg: linear-gradient(90deg, #000080, #1084d0);
+  --header-color: #ffffff;
+  --header-padding: 3px 8px;
+  --header-margin: -18px -18px 15px -18px; /* Snaps title bar to the inside of the 3D border */
+  --header-border: none;
+}
+
+[data-theme="light"] {
+  --bg: #f4f4f9; 
+  --panel: #ffffff; 
+  --text: #222222; 
+  --accent: #005bb5;
+  --font: 'Segoe UI', Roboto, Helvetica, sans-serif;
+  
+  --panel-border: 1px solid #ddd;
+  --panel-radius: 8px;
+  --panel-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  --clip-path: none;
+  
+  --header-bg: #f8f9fa;
+  --header-color: var(--accent);
+  --header-padding: 10px;
+  --header-margin: -20px -20px 15px -20px;
+  --header-border: 1px solid #ddd;
+}
+
+/* --- THE MASTER COMPONENT CLASSES --- */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  margin: 0;
+  overflow-x: hidden;
+  letter-spacing: var(--tracking);
+  transition: background-color 0.3s ease;
+}
+
+/* This is the class we will apply to all your components */
+.dashboard-panel {
+  background: var(--panel);
+  border: var(--panel-border);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--panel-shadow);
+  clip-path: var(--clip-path);
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.dashboard-panel h2 {
+  color: var(--header-color);
+  background: var(--header-bg);
+  border-bottom: var(--header-border);
+  padding: var(--header-padding);
+  margin: var(--header-margin);
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+/* Re-apply the global CRT Scanlines */
+.crt-scanlines {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* --- INTERACTIVE ELEMENTS --- */
+.interactive-link {
+  color: var(--text);
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease-in-out;
+}
+
+.interactive-link:hover {
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--accent);
+  transform: translateX(8px); /* Tactical right-shift on hover */
+}
+
+/* --- THE MASTER LAYOUT ENGINE --- */
+.dashboard-grid {
+  padding: 40px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
+
+/* =========================================
+   WINDOWS 95 STRUCTURAL OVERRIDES 
+   ========================================= */
+
+
+/* 3. Inject Fake Window Control Buttons into the Title Bars */
+[data-theme="90s"] .dashboard-panel h2 {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-right: 75px; /* <--- FIX: Prevents the window controls from overlapping text */
+}
+
+[data-theme="90s"] .dashboard-panel h2::after {
+  content: "_ ◻ X";
+  position: absolute;
+  right: 3px;
+  top: 50%; /* <--- FIX: Centers the block vertically */
+  transform: translateY(-50%); 
+  background: #c0c0c0;
+  color: black;
+  font-weight: bold;
+  font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+  font-size: 11px;
+  padding: 2px 5px;
+  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+  letter-spacing: 5px;
+  cursor: default;
+}
+
+/* 4. The Internet Explorer Illusion (News Module) */
+[data-theme="90s"] .global-news {
+  flex: 1 1 100%; 
+  background: #ffffff; 
+  color: #000000;
+  box-shadow: inset -2px -2px #fff, inset 2px 2px #0a0a0a; 
+}
+[data-theme="90s"] .global-news h2 {
+  background: linear-gradient(90deg, #000080, #1084d0); 
+  color: white;
+  margin: -20px -20px 15px -20px; /* Snaps the IE title bar tight to the edges */
+}
+[data-theme="90s"] .global-news a.interactive-link {
+  color: #0000ee; 
+  text-decoration: underline;
+}
+[data-theme="90s"] .global-news a.interactive-link:hover {
+  transform: none; 
+  color: #ff0000; 
+  text-shadow: none;
+}
+/* 5. The File Dialog Illusion (Sys Stats Module) */
+[data-theme="90s"] .sys-stats {
+  background: #c0c0c0;
+}
+[data-theme="90s"] .sys-stats > div:not(h2) {
+  /* Forces the inner text back to classic MS Sans Serif instead of monospace */
+  background: transparent;
+  color: #000000;
+  border: none;
+  font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+  padding: 5px 0;
+}
+[data-theme="90s"] .win95-stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+[data-theme="90s"] .win95-stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+[data-theme="90s"] .win95-progress-bar {
+  display: flex;
+  height: 20px;
+  padding: 2px;
+  gap: 2px;
+  background: #c0c0c0;
+  /* The authentic 3D sunken well for the progress bar */
+  box-shadow: inset -1px -1px #fff, inset 1px 1px #808080, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+}
+[data-theme="90s"] .win95-progress-block {
+  flex: 1;
+  background: #000080; /* Classic Navy Blue */
+}
+/* ... keep your existing #5 Task Manager block here ... */
+
+/* 6. Button Overrides (Forces inline React buttons to obey 1995 laws) */
+[data-theme="90s"] button {
+  background: #c0c0c0 !important;
+  color: #000 !important;
+  border: 2px solid !important;
+  border-color: #fff #0a0a0a #0a0a0a #fff !important;
+  box-shadow: inset -1px -1px #808080, inset 1px 1px #dfdfdf !important;
+  border-radius: 0 !important;
+  font-family: 'MS Sans Serif', 'Tahoma', sans-serif !important;
+  font-weight: normal !important;
+  padding: 2px 8px !important;
+  text-transform: none !important;
+  margin-left: 10px;
+}
+[data-theme="90s"] button:active {
+  border-color: #0a0a0a #fff #fff #0a0a0a !important;
+  box-shadow: inset 1px 1px #808080 !important;
+}
+
+/* 7. The Notepad Illusion (Data Vault) */
+[data-theme="90s"] .data-vault {
+  background: #c0c0c0; /* Gray window frame */
+}
+[data-theme="90s"] .data-vault h2 {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: white;
+}
+[data-theme="90s"] .win95-menubar {
+  display: flex;
+  gap: 15px;
+  padding: 5px 10px;
+  background: #c0c0c0;
+  color: black;
+  font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+  margin: -15px -20px 10px -20px; /* Snaps it flush under the title bar */
+}
+[data-theme="90s"] .win95-menubar span {
+  cursor: default;
+}
+[data-theme="90s"] .win95-menubar span:hover {
+  background: #000080;
+  color: white;
+}
+[data-theme="90s"] .vault-content {
+  background: #ffffff; /* White paper background */
+  color: #000000;
+  padding: 15px;
+  min-height: 150px;
+  font-family: 'Fixedsys', 'Courier New', monospace; /* Classic Notepad font */
+  box-shadow: inset -2px -2px #fff, inset 2px 2px #0a0a0a; /* Sunken text area */
+  margin: 0 -10px -10px -10px;
+}
+
+/* 8. The MS-DOS Prompt Illusion (Network Radar) */
+[data-theme="90s"] .network-radar {
+  background: #c0c0c0;
+}
+[data-theme="90s"] .network-radar h2 {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: white;
+  /* Add the classic MS-DOS icon using a CSS trick */
+  padding-left: 25px;
+}
+[data-theme="90s"] .network-radar h2::before {
+  content: "C:\\";
+  position: absolute;
+  left: 5px;
+  font-family: monospace;
+  font-size: 10px;
+  background: black;
+  color: #c0c0c0;
+  padding: 2px;
+  border: 1px solid white;
+}
+[data-theme="90s"] .radar-content {
+  background: #000000; /* Pure black DOS screen */
+  color: #c0c0c0; /* Classic DOS gray text */
+  padding: 15px;
+  font-family: 'Fixedsys', 'Courier New', monospace;
+  box-shadow: inset -2px -2px #fff, inset 2px 2px #0a0a0a;
+  margin: 0 -10px -10px -10px;
+  min-height: 150px;
+}
+[data-theme="90s"] .dos-cursor {
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* 9. The Dialog Properties Illusion (Sys Time) */
+[data-theme="90s"] .sys-time {
+  background: #c0c0c0;
+}
+[data-theme="90s"] .sys-time h2 {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: white;
+}
+[data-theme="90s"] .win95-dialog-body {
+  padding: 5px;
+  font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+}
+[data-theme="90s"] .win95-groupbox {
+  border-top: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-bottom: 1px solid #ffffff;
+  border-right: 1px solid #ffffff;
+  padding: 10px;
+  margin: 0;
+}
+[data-theme="90s"] .win95-groupbox legend {
+  color: #000;
+  padding: 0 5px;
+}
+[data-theme="90s"] .win95-sunken-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  color: #000000;
+  padding: 2px 2px 2px 5px;
+  width: 120px;
+  box-shadow: inset -1px -1px #fff, inset 1px 1px #808080, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+}
+[data-theme="90s"] .win95-spinner {
+  display: flex;
+  flex-direction: column;
+}
+[data-theme="90s"] .spin-btn {
+  background: #c0c0c0;
+  font-size: 6px;
+  padding: 1px 3px;
+  cursor: default;
+  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+}
+[data-theme="90s"] .spin-btn:active {
+  box-shadow: inset 1px 1px #0a0a0a;
+}
+
+/* 10. The Explorer Illusion (Agenda Sync) */
+[data-theme="90s"] .agenda-sync {
+  background: #c0c0c0;
+}
+[data-theme="90s"] .agenda-sync h2 {
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: white;
+}
+[data-theme="90s"] .win95-explorer-headers {
+  display: flex;
+  background: #c0c0c0;
+  margin: 0 -10px; /* Stretch to window edges */
+}
+[data-theme="90s"] .win95-explorer-headers div {
+  color: black;
+  font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+  padding: 2px 5px;
+  box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+  cursor: default;
+}
+[data-theme="90s"] .header-time { width: 100px; }
+[data-theme="90s"] .header-event { flex-grow: 1; }
+
+[data-theme="90s"] .win95-explorer-body {
+  background: #ffffff;
+  color: #000000;
+  min-height: 150px;
+  margin: 0 -10px -10px -10px;
+  box-shadow: inset -2px -2px #fff, inset 2px 2px #0a0a0a;
+  font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+}
+[data-theme="90s"] .win95-list-row {
+  display: flex;
+  padding: 2px 5px;
+  cursor: default;
+}
+[data-theme="90s"] .win95-list-row:hover {
+  background: #000080;
+  color: #ffffff;
+}
+[data-theme="90s"] .col-time { width: 100px; }
+[data-theme="90s"] .col-event { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 11. Minesweeper Illusion (Weather) */
+[data-theme="90s"] .weather-module { background: #c0c0c0; }
+[data-theme="90s"] .weather-module h2 { background: linear-gradient(90deg, #000080, #1084d0); color: white; }
+[data-theme="90s"] .win95-minesweeper-body {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  padding: 6px;
+}
+[data-theme="90s"] .ms-scoreboard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  padding: 6px;
+  margin-bottom: 10px;
+}
+[data-theme="90s"] .ms-digital {
+  background: black;
+  color: red;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 28px;
+  padding: 2px 6px;
+  line-height: 1;
+  border: 1px solid #808080;
+}
+[data-theme="90s"] .ms-face {
+  font-size: 24px;
+  padding: 4px 8px !important; /* Forces the button to be slightly larger */
+}
+[data-theme="90s"] .ms-stats-area {
+  background: #ffffff;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  padding: 10px;
+  font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+  color: black;
+}
+
+/* 12. Control Panel Illusion (Shortcuts) */
+[data-theme="90s"] .shortcuts-module { background: #c0c0c0; }
+[data-theme="90s"] .shortcuts-module h2 { background: linear-gradient(90deg, #000080, #1084d0); color: white; }
+[data-theme="90s"] .win95-desktop-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 15px;
+  background: #ffffff;
+  box-shadow: inset -2px -2px #fff, inset 2px 2px #0a0a0a;
+  min-height: 150px;
+}
+[data-theme="90s"] .win95-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 70px;
+  text-decoration: none;
+  color: black;
+  font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+  font-size: 11px;
+}
+[data-theme="90s"] .icon-graphic {
+  font-size: 32px;
+  margin-bottom: 5px;
+}
+[data-theme="90s"] .win95-icon:hover .icon-text {
+  background: #000080;
+  color: white;
+  border: 1px dotted white;
+}
+[data-theme="90s"] .icon-text {
+  text-align: center;
+  padding: 2px;
+  border: 1px solid transparent;
+}
+
+[data-theme="90s"] .win95-crusty-image {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 5px;
+  
+  /* The Magic Bullet: Forces the browser to render pixels sharply instead of smoothing them */
+  image-rendering: pixelated; 
+  
+  /* Simulates the high-contrast, limited color palette of a CRT monitor */
+  filter: contrast(1.2) saturate(1.2);
+}
+
+
+/* =========================================
+   FALLOUT STRUCTURAL OVERRIDES 
+   ========================================= */
+
+/* The Global RobCo Atmosphere */
+[data-theme="fallout"] .dashboard-panel {
+  text-transform: uppercase;
+  text-shadow: 0 0 5px var(--accent); /* Authentic phosphor glow */
+  animation: fo-flicker 0.15s infinite; /* Subtle CRT refresh flicker */
+}
+@keyframes fo-flicker {
+  0% { opacity: 0.98; }
+  50% { opacity: 1; }
+  100% { opacity: 0.99; }
+}
+
+/* Center and re-style all headers */
+[data-theme="fallout"] h2 {
+  text-align: center;
+  border-bottom: 2px dashed var(--accent);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+/* The Blinking Block Cursor */
+[data-theme="fallout"] .fo-cursor {
+  animation: fo-blink 1s step-end infinite;
+  margin-left: 5px;
+}
+@keyframes fo-blink {
+  50% { opacity: 0; }
+}
+
+/* Termlink Protocol (Shortcuts) */
+[data-theme="fallout"] .fo-termlink-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+[data-theme="fallout"] .fo-link-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+[data-theme="fallout"] .fo-termlink-btn {
+  color: var(--accent);
+  text-decoration: none;
+  display: inline-block;
+  width: 100%;
+  padding: 2px 10px;
+  font-weight: bold;
+}
+/* The legendary Fallout hover inversion! */
+[data-theme="fallout"] .fo-termlink-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+  text-shadow: none; /* Removes glow from inverted text for clarity */
+}
+[data-theme="fallout"] .fo-edit-btn,
+[data-theme="fallout"] .fo-delete-btn {
+  background: transparent;
+  color: var(--accent);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  font-weight: bold;
+}
+[data-theme="fallout"] .fo-edit-btn:hover,
+[data-theme="fallout"] .fo-delete-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Vault-Tec Personal Logs (Data Vault) */
+[data-theme="fallout"] .fo-vault-log {
+  line-height: 1.6;
+}
+[data-theme="fallout"] .fo-log-header {
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+[data-theme="fallout"] .fo-log-body {
+  margin-bottom: 20px;
+  white-space: pre-wrap; /* Preserves poetic formatting */
+}
+[data-theme="fallout"] .fo-log-footer {
+  border-top: 1px dashed var(--accent);
+  padding-top: 10px;
+}
+
+/* Core Diagnostics (SysStats) */
+[data-theme="fallout"] .fo-stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+[data-theme="fallout"] .fo-stat-line {
+  display: flex;
+  justify-content: space-between;
+}
+[data-theme="fallout"] .fo-label {
+  opacity: 0.8;
+  padding-right: 15px;
+}
+[data-theme="fallout"] .fo-warning-blink {
+  animation: fo-blink-fast 0.5s step-end infinite;
+}
+@keyframes fo-blink-fast {
+  50% { opacity: 0.3; }
+}
+
+/* Routing Table (Network Radar) */
+[data-theme="fallout"] .fo-radar-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px dotted rgba(255, 176, 0, 0.3); /* Dim amber divider */
+}
+[data-theme="fallout"] .fo-radar-head {
+  font-weight: bold;
+  opacity: 0.6;
+  border-bottom: 2px solid var(--accent);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+}
+
+/* GNR Broadcast (Global News) */
+[data-theme="fallout"] .fo-news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+[data-theme="fallout"] .fo-news-item {
+  display: flex;
+  align-items: flex-start;
+}
+[data-theme="fallout"] .fo-news-item .fo-termlink-btn {
+  /* Prevent the background inversion from collapsing the text block */
+  white-space: normal; 
+  padding: 4px;
+}
+
+/* Quest Log (Agenda Sync) */
+[data-theme="fallout"] .fo-quest-item {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 12px;
+  align-items: flex-start;
+}
+[data-theme="fallout"] .fo-quest-past {
+  opacity: 0.5;
+}
+[data-theme="fallout"] .fo-quest-box {
+  font-weight: bold;
+  font-size: 1.2em;
+  line-height: 1;
+}
+[data-theme="fallout"] .fo-quest-details {
+  display: flex;
+  flex-direction: column;
+}
+[data-theme="fallout"] .fo-quest-time {
+  opacity: 0.8;
+  font-size: 0.85em;
+  margin-bottom: 2px;
+}
+[data-theme="fallout"] .fo-quest-title {
+  font-weight: bold;
+}
+
+/* Chrono Module (SysTime) */
+[data-theme="fallout"] .fo-chrono-container {
+  text-align: center;
+  margin-top: 10px;
+}
+[data-theme="fallout"] .fo-time-large {
+  font-size: 3.5em;
+  font-weight: bold;
+  letter-spacing: 4px;
+}
+[data-theme="fallout"] .fo-date-small {
+  font-size: 1.2em;
+  letter-spacing: 6px;
+  margin-top: 5px;
+  opacity: 0.8;
+}
+
+/* HELIOS One Uplink (Orbital Tracking) */
+[data-theme="fallout"] .fo-telemetry-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px dashed var(--accent);
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+[data-theme="fallout"] .fo-map-wrapper {
+  border: 4px solid var(--accent);
+  border-radius: 12px;
+  overflow: hidden;
+  height: 450px;
+  position: relative;
+  /* Simulates the rounded glass of a CRT tube */
+  box-shadow: inset 0 0 20px rgba(255, 176, 0, 0.5); 
+}
+[data-theme="fallout"] .fo-map-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 4px);
+  pointer-events: none; /* Injects permanent scanlines directly over the map */
+}
+/* The Magic Fallout Filter: Inverts the map to dark mode, crushes it to monochrome, and tints it Amber/Green */
+[data-theme="fallout"] .fo-tactical-map {
+  filter: invert(100%) sepia(100%) hue-rotate(10deg) saturate(500%) brightness(0.9) contrast(1.5);
+  display: block;
+}
+
+
+/* =========================================
+   MATERIAL YOU STRUCTURAL OVERRIDES 
+   ========================================= */
+
+/* The Dynamic Color Palette (Dark Mode Base) */
+/* The Dynamic Color Palette (Vibrant Dark Mode Base) */
+[data-theme="material"] {
+  --bg: #140F1D;              /* Deep, rich Amethyst background */
+  --panel-bg: #271E3A;        /* Elevated Violet surface */
+  --text: #F5EEFF;            /* Crisp, bright lavender-white */
+  --accent: #ffa7ef;          /* Vibrant Neon Magenta/Pink */
+  --accent-on: #410036;       /* Deep contrast text for accent buttons */
+  --secondary-bg: #4D3373;    /* Punchy saturated Purple for cards/chips */
+  --secondary-text: #FBEFFF;  /* Bright crisp text on secondary cards */
+  
+  --font: 'Google Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+/* Base Panel Styling - Massive Curves */
+[data-theme="material"] .md-panel {
+  background: var(--panel-bg);
+  border-radius: 28px;
+  border: none;
+  padding: 24px;
+  box-shadow: none;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+/* Special accent panel for things like the clock */
+[data-theme="material"] .md-panel-accent {
+  background: var(--accent);
+  color: var(--accent-on);
+}
+[data-theme="material"] h2 {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--text);
+  border: none;
+  padding: 0;
+  text-transform: capitalize;
+  text-shadow: none;
+}
+
+/* --- SysTime (Clock Widget) --- */
+[data-theme="material"] .md-chrono-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+[data-theme="material"] .md-time {
+  font-size: 5.5em;
+  font-weight: 400;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+[data-theme="material"] .md-date {
+  font-size: 1.2em;
+  margin-top: 8px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+/* --- Weather (At a Glance) --- */
+[data-theme="material"] .md-weather-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+[data-theme="material"] .md-weather-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+[data-theme="material"] .md-weather-icon {
+  font-size: 4em;
+  line-height: 1;
+}
+[data-theme="material"] .md-temp {
+  font-size: 3.5em;
+  font-weight: 400;
+  line-height: 1;
+}
+[data-theme="material"] .md-feels-like {
+  opacity: 0.7;
+  font-size: 0.9em;
+  margin-top: 4px;
+}
+[data-theme="material"] .md-weather-details {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+[data-theme="material"] .md-detail-pill {
+  background: var(--secondary-bg);
+  color: var(--secondary-text);
+  padding: 8px 16px;
+  border-radius: 50px; /* Perfect pill shape */
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* --- Shortcuts (Squircle Grid) --- */
+[data-theme="material"] .md-shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+[data-theme="material"] .md-shortcut-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--secondary-bg);
+  color: var(--secondary-text);
+  text-decoration: none;
+  padding: 16px;
+  border-radius: 20px;
+  font-weight: 500;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+[data-theme="material"] .md-shortcut-btn:hover {
+  background: var(--accent);
+  color: var(--accent-on);
+  transform: scale(1.02);
+}
+/* Editing Buttons */
+[data-theme="material"] .md-btn-tonal {
+  background: var(--secondary-bg);
+  color: var(--secondary-text);
+  border: none;
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+[data-theme="material"] .md-btn-active {
+  background: var(--accent);
+  color: var(--accent-on);
+  border: none;
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+[data-theme="material"] .md-delete-btn {
+  position: absolute;
+  top: -6px; right: -6px;
+  background: #FFB4AB; /* Material Error Color */
+  color: #690005;
+  border: none;
+  border-radius: 50px;
+  width: 24px; height: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* --- SysStats (Hardware Health) --- */
+[data-theme="material"] .md-stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+[data-theme="material"] .md-stat-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+[data-theme="material"] .md-stat-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+  font-size: 1.1em;
+}
+[data-theme="material"] .md-progress-track {
+  width: 100%;
+  height: 24px;
+  background: var(--secondary-bg);
+  border-radius: 50px;
+  overflow: hidden;
+}
+[data-theme="material"] .md-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 50px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme="material"] .md-stat-subtext {
+  font-size: 0.85em;
+  opacity: 0.7;
+  text-align: right;
+}
+
+/* --- Network Radar (Status Chips) --- */
+[data-theme="material"] .md-radar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+[data-theme="material"] .md-radar-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 24px;
+  font-weight: 500;
+  background: var(--secondary-bg);
+  transition: transform 0.2s ease;
+}
+[data-theme="material"] .md-online {
+  color: var(--secondary-text);
+}
+[data-theme="material"] .md-offline {
+  background: #FFB4AB; /* Material Error Container */
+  color: #690005; /* On Error Container */
+}
+[data-theme="material"] .md-chip-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.1);
+  font-weight: bold;
+}
+
+/* --- Global News (Floating Cards) --- */
+[data-theme="material"] .md-news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+[data-theme="material"] .md-news-card {
+  display: block;
+  padding: 16px 20px;
+  background: var(--secondary-bg);
+  color: var(--secondary-text);
+  border-radius: 24px;
+  text-decoration: none;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+[data-theme="material"] .md-news-card:hover {
+  background: var(--accent);
+  color: var(--accent-on);
+  transform: translateY(-2px);
+}
+
+/* --- Agenda Sync (Schedule Cards) --- */
+[data-theme="material"] .md-agenda-list > div {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+[data-theme="material"] .md-agenda-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  background: var(--secondary-bg);
+  color: var(--secondary-text);
+  border-radius: 24px;
+}
+[data-theme="material"] .md-agenda-past {
+  opacity: 0.5;
+  background: transparent;
+  border: 2px solid var(--secondary-bg);
+}
+[data-theme="material"] .md-agenda-time {
+  font-size: 0.9em;
+  opacity: 0.8;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+[data-theme="material"] .md-agenda-title {
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+/* --- Data Vault (Reading Card) --- */
+[data-theme="material"] .md-vault-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+[data-theme="material"] .md-vault-quote {
+  font-size: 1.25em;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--secondary-bg);
+  padding: 24px;
+  border-radius: 24px 24px 24px 4px; /* Playful asymmetric chat-bubble radius */
+}
+[data-theme="material"] .md-vault-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+[data-theme="material"] .md-meta-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--secondary-bg);
+  color: var(--secondary-text);
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* --- Orbital Tracking (Topographical Widget) --- */
+[data-theme="material"] .md-orbital-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+[data-theme="material"] .md-telemetry-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+[data-theme="material"] .md-tel-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--secondary-bg);
+  color: var(--secondary-text);
+  padding: 12px 20px;
+  border-radius: 50px;
+  flex-grow: 1;
+}
+[data-theme="material"] .md-tel-pill span {
+  opacity: 0.7;
+  font-size: 0.85em;
+}
+[data-theme="material"] .md-tel-pill strong {
+  font-size: 1.1em;
+  font-weight: 500;
+}
+[data-theme="material"] .md-tel-accent {
+  background: var(--accent);
+  color: var(--accent-on);
+}
+[data-theme="material"] .md-map-wrapper {
+  width: 100%;
+  height: 450px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: var(--bg);
+}
+/* Magic Filter: Transforms standard OSM into a muted, sophisticated dark mode map */
+[data-theme="material"] .md-tactical-map {
+  filter: invert(90%) hue-rotate(180deg) brightness(0.95) contrast(0.85);
+  display: block;
+}
+
+/* =========================================
+   THEME SELECTOR (SHAPE-SHIFTING DROPDOWN)
+   ========================================= */
+
+/* Base positioning so it sits nicely in your header */
+.theme-selector {
+  padding: 8px 12px;
+  cursor: pointer;
+  outline: none;
+}
+
+/* --- 90s: Sunken Windows Box --- */
+[data-theme="90s"] .theme-selector {
+  background: #fff;
+  color: #000;
+  border: 2px solid;
+  border-color: #808080 #dfdfdf #dfdfdf #808080;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+}
+
+/* --- Cyberpunk: Glowing Tech Interface --- */
+[data-theme="cyberpunk"] .theme-selector {
+  background: #000; /* Solid black to block scanlines behind it */
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-family: 'Courier New', Courier, monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.2);
+}
+[data-theme="cyberpunk"] .theme-selector option {
+  background: #000;
+  color: var(--accent);
+}
+
+/* --- Fallout: RobCo Terminal Dial --- */
+[data-theme="fallout"] .theme-selector {
+  background: #000; /* Blocks the CRT scanlines from making it unreadable */
+  color: var(--accent);
+  border: 2px dashed var(--accent);
+  font-family: 'Courier New', Courier, monospace;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+[data-theme="fallout"] .theme-selector option {
+  background: #000;
+  color: var(--accent);
+}
+
+/* --- Material You: Soft Tonal Pill --- */
+[data-theme="material"] .theme-selector {
+  background: var(--secondary-bg);
+  color: var(--secondary-text);
+  border: none;
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-family: var(--font);
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+[data-theme="material"] .theme-selector:hover {
+  background: var(--accent);
+  color: var(--accent-on);
+}
+[data-theme="material"] .theme-selector option {
+  background: var(--panel-bg);
+  color: var(--text);
+}
+
+/* --- System Control CSS --- */
+[data-theme="material"] .md-sys-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+[data-theme="material"] .md-btn-sys {
+  background: var(--secondary-bg);
+  color: var(--secondary-text);
+  border: none;
+  padding: 16px;
+  border-radius: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
+}
+[data-theme="material"] .md-btn-sys:active { transform: scale(0.95); }
+[data-theme="material"] .md-btn-danger {
+  background: #FFB4AB;
+  color: #690005;
+}
+
+[data-theme="cyberpunk"] .cp-sys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+[data-theme="cyberpunk"] .cp-btn {
+  background: rgba(0, 229, 255, 0.05);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 10px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+[data-theme="cyberpunk"] .cp-btn:hover { background: var(--accent); color: #000; }
+[data-theme="cyberpunk"] .cp-btn-warn { border-color: #ff0055; color: #ff0055; }
+[data-theme="cyberpunk"] .cp-btn-warn:hover { background: #ff0055; color: #000; }
+
+[data-theme="fallout"] .fo-warn-btn { color: #ff3333; }
+[data-theme="fallout"] .fo-warn-btn:hover { background: #ff3333; color: #000; }
+
+/* --- Fallout System Buttons Fix --- */
+[data-theme="fallout"] .system-control button {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+[data-theme="fallout"] .system-control button:hover {
+  background: var(--accent);
+  color: #000;
+}
+
+/* [data-theme="fallout"] .system-control .fo-warn-btn {
+  color: #ff3333;
+  border-color: #ff3333;
+}
+
+[data-theme="fallout"] .system-control .fo-warn-btn:hover {
+  background: #ff3333;
+  color: #000;
+} */
+
+/* --- Local Devices Scanner (Upgraded) --- */
+[data-theme="material"] .md-device-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+[data-theme="material"] .md-device-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg);
+  padding: 12px 16px;
+  border-radius: 16px;
+}
+[data-theme="material"] .md-dev-icon {
+  font-size: 1.5em;
+  background: var(--secondary-bg);
+  border-radius: 50%;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+[data-theme="material"] .md-dev-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+[data-theme="material"] .md-dev-name {
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+[data-theme="material"] .md-dev-ip {
+  font-size: 0.85em;
+  opacity: 0.8;
+  font-family: var(--font);
+}
+
+[data-theme="cyberpunk"] .cp-device-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+[data-theme="cyberpunk"] .cp-device-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  background: rgba(0, 229, 255, 0.05);
+  border-left: 2px solid var(--accent);
+  padding: 10px 12px;
+  font-family: 'Courier New', Courier, monospace;
+}
+[data-theme="cyberpunk"] .cp-dev-info {
+  display: flex;
+  flex-direction: column;
+}
+[data-theme="cyberpunk"] .cp-dev-name {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 2px;
+}
+[data-theme="cyberpunk"] .cp-dev-ip { 
+  color: var(--accent); 
+  opacity: 0.9; 
+}
+[data-theme="cyberpunk"] .cp-dev-mac { 
+  font-size: 0.8em;
+  opacity: 0.6; 
+}

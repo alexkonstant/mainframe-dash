@@ -1,0 +1,123 @@
+import { useState, useEffect, useContext } from 'react';
+import { ThemeContext } from '../ThemeContext';
+
+export default function SysStats() {
+    const [stats, setStats] = useState(null);
+    const [status, setStatus] = useState("> Establishing uplink...");
+    const { theme } = useContext(ThemeContext);
+
+    useEffect(() => {
+        const fetchStats = () => {
+            fetch('/api/stats')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        setStats(data);
+                        setStatus("> Telemetry locked.");
+                    }
+                })
+                .catch(() => setStatus("> ERR_UPLINK_SEVERED"));
+        };
+
+        fetchStats();
+        const interval = setInterval(fetchStats, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const drawAsciiBar = (percent) => `[${'#'.repeat(Math.round(percent / 10)).padEnd(10, '.')}]`;
+    
+    // Authentic Fallout Heavy ASCII Bar
+    const drawFalloutBar = (percent) => `[${'█'.repeat(Math.round(percent / 10)).padEnd(10, '-')} ]`;
+
+    const drawWin95Bar = (percent) => {
+        const activeBlocks = Math.round((percent / 100) * 15);
+        return (
+            <div className="win95-progress-bar">
+                {[...Array(15)].map((_, i) => (
+                    <div key={i} className="win95-progress-block" style={{ visibility: i < activeBlocks ? 'visible' : 'hidden' }}></div>
+                ))}
+            </div>
+        );
+    };
+return (
+        <div className={`dashboard-panel sys-stats ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+            {theme !== 'material' && (
+                <h2>
+                    {theme === '90s' ? 'SYS_STATS // PI_1_MODEL_B' : 
+                     theme === 'cyberpunk' ? 'CORE_DIAGNOSTICS // OPTICS_MK.1' : 
+                     theme === 'fallout' ? 'ROBCO_OS // HARDWARE_DIAGNOSTICS' :
+                     'SYS_STATS // PI_1_MODEL_B'}
+                </h2>
+            )}
+            
+            {theme !== 'fallout' && theme !== 'material' && (
+                <div style={{ opacity: theme === '90s' ? 1 : 0.7, marginBottom: '15px', fontStyle: theme === '90s' ? 'normal' : 'italic' }}>
+                    {theme === '90s' ? `Status:  ${status.replace('>', '').trim()}` : status}
+                </div>
+            )}
+            
+            {stats ? (
+                <div style={{ lineHeight: '1.6' }}>
+                    {theme === '90s' ? (
+                        /* ... 90s Layout ... */
+                        <div className="win95-stats-container">
+                            <div className="win95-stat-row"><span>CPU Usage... ({stats.cpu_percent}%)</span>{drawWin95Bar(stats.cpu_percent)}</div>
+                            <div className="win95-stat-row"><span>Memory allocated... {stats.ram_used_mb}MB / {stats.ram_total_mb}MB</span>{drawWin95Bar(stats.ram_percent)}</div>
+                            <div className="win95-stat-row" style={{ marginTop: '5px' }}><span>Thermal Core: {stats.temp_c > 0 ? `${stats.temp_c}°C` : 'Offline'}</span></div>
+                        </div>
+                    ) : theme === 'cyberpunk' ? (
+                        /* ... Cyberpunk Layout ... */
+                        <div className="cp-hud-grid">
+                            <div className="cp-hud-item"><div className="cp-hud-label">NEURAL_PROC <span>[{stats.cpu_percent}%]</span></div><div className="cp-hud-bar-bg"><div className="cp-hud-bar-fill" style={{ width: `${stats.cpu_percent}%` }}></div></div></div>
+                            <div className="cp-hud-item"><div className="cp-hud-label">RAM_CAPACITY <span>[{stats.ram_percent}%]</span></div><div className="cp-hud-bar-bg"><div className="cp-hud-bar-fill" style={{ width: `${stats.ram_percent}%` }}></div></div></div>
+                            <div className="cp-hud-item cp-thermal"><div className="cp-hud-label">THERMAL_CORE</div><div className={`cp-hud-value ${stats.temp_c > 60 ? 'cp-warning' : ''}`}>{stats.temp_c > 0 ? `${stats.temp_c}°C` : 'ERR_SENSOR'}{stats.temp_c > 60 && <span className="cp-warning-text"> // OVERHEAT</span>}</div></div>
+                        </div>
+                    ) : theme === 'fallout' ? (
+                        /* ... Fallout Layout ... */
+                        <div className="fo-stats-container">
+                            <div className="fo-stat-line"><span className="fo-label">CPU_LOAD:</span><span>{drawFalloutBar(stats.cpu_percent)} {String(stats.cpu_percent).padStart(3, '0')}%</span></div>
+                            <div className="fo-stat-line"><span className="fo-label">RAM_ALLOC:</span><span>{drawFalloutBar(stats.ram_percent)} {String(stats.ram_percent).padStart(3, '0')}%</span></div>
+                            <div className="fo-stat-line"><span className="fo-label">MEM_PAGES:</span><span>{String(stats.ram_used_mb).padStart(4, '0')}MB / {stats.ram_total_mb}MB</span></div>
+                            <div className="fo-stat-line"><span className="fo-label">CORE_TEMP:</span><span className={stats.temp_c > 60 ? 'fo-warning-blink' : ''}>{stats.temp_c > 0 ? `${stats.temp_c} DEG_C` : 'SENSOR_DEAD'}</span></div>
+                        </div>
+                    ) : theme === 'material' ? (
+                        /* Material You Layout */
+                        <div className="md-stats-container">
+                            <h2 style={{ fontSize: '1.4rem', fontWeight: '500', marginBottom: '20px' }}>Device Health</h2>
+                            
+                            <div className="md-stat-group">
+                                <div className="md-stat-header"><span>CPU Load</span><span>{stats.cpu_percent}%</span></div>
+                                <div className="md-progress-track"><div className="md-progress-fill" style={{ width: `${stats.cpu_percent}%` }}></div></div>
+                            </div>
+                            
+                            <div className="md-stat-group">
+                                <div className="md-stat-header"><span>Memory</span><span>{stats.ram_percent}%</span></div>
+                                <div className="md-progress-track"><div className="md-progress-fill" style={{ width: `${stats.ram_percent}%` }}></div></div>
+                                <div className="md-stat-subtext">{stats.ram_used_mb} MB of {stats.ram_total_mb} MB</div>
+                            </div>
+                            
+                            <div className="md-stat-group" style={{ marginTop: '10px' }}>
+                                <div className="md-stat-header">
+                                    <span>Thermal Core</span>
+                                    <span style={{ color: stats.temp_c > 60 ? '#FFB4AB' : 'inherit' }}>
+                                        {stats.temp_c > 0 ? `${stats.temp_c}°C` : 'Offline'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        /* ... Default Layout ... */
+                        <div>
+                            <div>&gt; CPU LOAD: {drawAsciiBar(stats.cpu_percent)} {stats.cpu_percent}%</div>
+                            <div>&gt; THERMAL CORE: {stats.temp_c > 0 ? `${stats.temp_c}°C` : 'SENSOR OFFLINE'}</div>
+                            <div>&gt; RAM USAGE: {stats.ram_used_mb}MB / {stats.ram_total_mb}MB</div>
+                            <div>&gt; RAM LEVEL: {drawAsciiBar(stats.ram_percent)} {stats.ram_percent}%</div>
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div style={{ opacity: 0.5 }}>{theme === '90s' ? 'Calculating time remaining...' : theme === 'material' ? 'Syncing hardware data...' : '> WAITING FOR DATA PACKETS...'}</div>
+            )}
+        </div>
+    );
+}
