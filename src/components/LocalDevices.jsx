@@ -1,21 +1,24 @@
-import { useContext } from 'react';
+import { useState, useContext } from 'react';
 import { ThemeContext } from '../ThemeContext';
 
 export default function LocalDevices({ devices }) {
     const { theme } = useContext(ThemeContext);
+    const [isScanning, setIsScanning] = useState(false);
     
     // Derived status
     const status = devices && devices.length > 0 
         ? `> ${devices.length} nodes detected.` 
         : "> Sweeping local subnet...";
 
-    const forceScan = async () => {
-        // Optional: Call a backend route to clear ARP cache or force an aggressive scan
-        console.log("Scan triggered"); 
+    const scanNetwork = () => {
+        setIsScanning(true);
+        // Force an immediate manual scan to the backend
+        fetch('/api/network/scan')
+            .then(() => setIsScanning(false))
+            .catch(() => setIsScanning(false));
     };
 
-    // ... Keep your exact return() block from here down ...
-return (
+    return (
         <div className={`dashboard-panel local-devices ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                 <h2 style={{ margin: 0 }}>
@@ -48,9 +51,8 @@ return (
             )}
 
             <div className={theme === 'cyberpunk' ? 'cp-device-list' : theme === 'material' ? 'md-device-list' : ''} style={theme !== 'cyberpunk' && theme !== 'material' && theme !== '90s' ? { lineHeight: '1.6' } : {}}>
-                {devices.length > 0 ? (
+                {devices && devices.length > 0 ? (
                     devices.map((dev, i) => {
-                        // Handle the missing hostname from Alpine's ARP table
                         const isUnknown = dev.name === '?';
                         const displayName = isUnknown ? (theme === 'cyberpunk' ? 'UNKNOWN_ENTITY' : theme === 'fallout' ? 'GHOST_NODE' : 'Unknown Device') : dev.name;
 
