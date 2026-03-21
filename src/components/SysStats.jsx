@@ -1,32 +1,13 @@
-import { useState, useEffect, useContext } from 'react';
+import { useContext } from 'react';
 import { ThemeContext } from '../ThemeContext';
 
-export default function SysStats() {
-    const [stats, setStats] = useState(null);
-    const [status, setStatus] = useState("> Establishing uplink...");
+export default function SysStats({ stats }) {
     const { theme } = useContext(ThemeContext);
-
-    useEffect(() => {
-        const fetchStats = () => {
-            fetch('/api/stats')
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        setStats(data);
-                        setStatus("> Telemetry locked.");
-                    }
-                })
-                .catch(() => setStatus("> ERR_UPLINK_SEVERED"));
-        };
-
-        fetchStats();
-        const interval = setInterval(fetchStats, 5000);
-        return () => clearInterval(interval);
-    }, []);
+    
+    // Derive status directly from the prop instead of managing local state
+    const status = stats ? "> Telemetry locked." : "> Establishing uplink...";
 
     const drawAsciiBar = (percent) => `[${'#'.repeat(Math.round(percent / 10)).padEnd(10, '.')}]`;
-    
-    // Authentic Fallout Heavy ASCII Bar
     const drawFalloutBar = (percent) => `[${'█'.repeat(Math.round(percent / 10)).padEnd(10, '-')} ]`;
 
     const drawWin95Bar = (percent) => {

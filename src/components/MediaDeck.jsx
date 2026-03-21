@@ -1,38 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-const MediaDeck = () => {
-  const [status, setStatus] = useState({
-    track: 'No track loaded',
+// Accept the audioData prop from App.jsx
+const MediaDeck = ({ audioData }) => {
+  // Fallback state if the master sync hasn't arrived yet
+  const status = audioData || {
+    track: 'Establishing link...',
     state: 'stopped',
     volume: '100%'
-  });
-
-  const fetchStatus = async () => {
-    try {
-      const response = await fetch('/api/media/status');
-      const data = await response.json();
-      setStatus(data);
-    } catch (error) {
-      console.error("Audio Link Offline", error);
-    }
   };
 
-  // Poll the MPD server every 2 seconds to keep the UI in sync
-  useEffect(() => {
-    fetchStatus();
-    const interval = setInterval(fetchStatus, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
   const togglePlay = async () => {
+    // Fire the command to the Pi 1 (UI will naturally update on the next 3s sync)
     await fetch('/api/media/toggle', { method: 'POST' });
-    fetchStatus(); // Instant UI update
   };
 
   const nextTrack = async () => {
     await fetch('/api/media/next', { method: 'POST' });
-    fetchStatus(); // Instant UI update
   };
+
+  // ... Keep your exact return() block from here down ...
 
   return (
     <div style={{ marginBottom: '20px' }}>

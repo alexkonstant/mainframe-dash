@@ -1,34 +1,20 @@
-import { useState, useEffect, useContext } from 'react';
+import { useContext } from 'react';
 import { ThemeContext } from '../ThemeContext';
 
-export default function LocalDevices() {
+export default function LocalDevices({ devices }) {
     const { theme } = useContext(ThemeContext);
-    const [devices, setDevices] = useState([]);
-    const [status, setStatus] = useState("> Initializing scanner...");
-    const [isScanning, setIsScanning] = useState(false);
+    
+    // Derived status
+    const status = devices && devices.length > 0 
+        ? `> ${devices.length} nodes detected.` 
+        : "> Sweeping local subnet...";
 
-    const scanNetwork = () => {
-        setIsScanning(true);
-        setStatus("> Sweeping local subnet...");
-        fetch('/api/network/scan')
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    setDevices(data.devices);
-                    setStatus(`> ${data.devices.length} nodes detected.`);
-                }
-            })
-            .catch(() => setStatus("> ERR_SCAN_FAILED"))
-            .finally(() => setIsScanning(false));
+    const forceScan = async () => {
+        // Optional: Call a backend route to clear ARP cache or force an aggressive scan
+        console.log("Scan triggered"); 
     };
 
-    // Auto-scan on load and every 5 minutes
-    useEffect(() => {
-        scanNetwork();
-        const interval = setInterval(scanNetwork, 300000);
-        return () => clearInterval(interval);
-    }, []);
-
+    // ... Keep your exact return() block from here down ...
 return (
         <div className={`dashboard-panel local-devices ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>

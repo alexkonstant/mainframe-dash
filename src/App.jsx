@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { ThemeContext } from './ThemeContext';
 import SysTime from './components/SysTime';
 import SysStats from './components/SysStats';
@@ -26,36 +26,66 @@ const ThemeSelector = () => {
         <option value="90s">Windows 95</option>
         <option value="cyberpunk">Cyberpunk</option>
         <option value="fallout">RobCo Terminal</option>
-        <option value="material">Material You</option>  {/* <-- Inject this line */}
+        <option value="material">Material You</option>
       </select>
     </div>
   );
 };
 
 function App() {
+  // Master state holds the single payload from the Pi 1
+  const [syncData, setSyncData] = useState({
+    hardware: null,
+    audio: null,
+    network: []
+  });
+
+  // The Mainframe Heartbeat (Fires every 3 seconds)
+  useEffect(() => {
+    const fetchSync = async () => {
+      try {
+        const response = await fetch('/api/sync');
+        const data = await response.json();
+        if (data.status === 'success') {
+          setSyncData({
+            hardware: data.hardware,
+            audio: data.audio,
+            network: data.network
+          });
+        }
+      } catch (error) {
+        console.error("MAINFRAME UPLINK SEVERED", error);
+      }
+    };
+
+    fetchSync();
+    const interval = setInterval(fetchSync, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       <ThemeSelector />
       <div className="dashboard-grid">
 
-        {/* Left Column: Local Systems & Links */}
+        {/* Left Column */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <SysTime />
-          <SysStats />
+          <SysStats stats={syncData.hardware} />
           <BluetoothManager />
           <SystemControl />
           <Shortcuts />
           <NetworkRadar />
         </div>
 
-        {/* Right Column: World Data & Agenda */}
+        {/* Right Column */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <Weather />
           <AgendaSync />
           <DataVault />
-          <MediaDeck />
+          <MediaDeck audioData={syncData.audio} />
           <GlobalNews />
-          <LocalDevices />
+          <LocalDevices devices={syncData.network} />
         </div>
 
         {/* Full Width Footer */}
