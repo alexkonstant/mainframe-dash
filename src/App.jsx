@@ -27,6 +27,7 @@ const ThemeSelector = () => {
         <option value="cyberpunk">Cyberpunk</option>
         <option value="fallout">RobCo Terminal</option>
         <option value="material">Material You</option>
+        <option value="y2k">Y2K Flash</option> {/* <-- ADD THIS LINE */}
       </select>
     </div>
   );
