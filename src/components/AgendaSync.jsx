@@ -23,8 +23,8 @@ export default function AgendaSync() {
         };
 
         fetchCalendar();
-        const fetchInterval = setInterval(fetchCalendar, 900000); 
-        const timeInterval = setInterval(() => setCurrentTime(new Date()), 60000); 
+        const fetchInterval = setInterval(fetchCalendar, 900000);
+        const timeInterval = setInterval(() => setCurrentTime(new Date()), 60000);
 
         return () => {
             clearInterval(fetchInterval);
@@ -59,9 +59,31 @@ export default function AgendaSync() {
         if (theme === 'cyberpunk') { /* ... CP ... */
             return <div key={idx} className={`cp-agenda-item ${isPast ? 'cp-agenda-past' : ''}`}><div className="cp-agenda-time">{e.display}</div><div className="cp-agenda-desc">{e.summary}</div><div className="cp-agenda-status">{isPast ? '[ COMPLETED ]' : '[ PENDING ]'}</div></div>;
         }
-        
+
         if (theme === 'fallout') { /* ... FO ... */
             return <div key={idx} className={`fo-quest-item ${isPast ? 'fo-quest-past' : ''}`}><div className="fo-quest-box">{isPast ? '[X]' : '[ ]'}</div><div className="fo-quest-details"><span className="fo-quest-time">{e.display}</span><span className="fo-quest-title">{e.summary.toUpperCase()}</span></div></div>;
+        }
+
+        if (theme === 'y2k') {
+            return (
+                <div key={idx} style={{
+                    display: 'flex',
+                    padding: '8px 5px',
+                    background: idx % 2 === 0 ? 'rgba(0,0,0,0.3)' : 'rgba(123,188,213,0.05)',
+                    borderLeft: `2px solid var(--accent)`,
+                    marginBottom: '4px',
+                    opacity: isPast ? 0.5 : 1
+                }}>
+                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                        <div style={{ color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', fontWeight: 'bold', textDecoration: isPast ? 'line-through' : 'none' }}>
+                            {e.summary}
+                        </div>
+                        <div style={{ fontSize: '9px', color: 'var(--accent)', marginTop: '4px' }}>
+                            {e.display}
+                        </div>
+                    </div>
+                </div>
+            );
         }
 
         if (theme === 'material') {
@@ -77,7 +99,7 @@ export default function AgendaSync() {
         // Terminal Rendering
         let style = { marginBottom: '5px' };
         let prefix = ">";
-        if (isPast && isToday) { style.textDecoration = 'line-through'; style.opacity = 0.4; } 
+        if (isPast && isToday) { style.textDecoration = 'line-through'; style.opacity = 0.4; }
         else if (isToday) { style.color = 'var(--accent)'; style.fontWeight = 'bold'; style.textShadow = '0 0 5px var(--accent)'; prefix = ">>"; }
         return <div key={idx} style={style}>{prefix} [{e.display}] {e.summary}</div>;
     };
@@ -86,19 +108,24 @@ export default function AgendaSync() {
         <div className={`dashboard-panel agenda-sync ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
             {theme !== 'material' && (
                 <h2>
-                    {theme === '90s' ? 'C:\\Windows\\Schedule' : 
-                     theme === 'cyberpunk' ? 'OP_LOG // UPCOMING_TASKS' : 
-                     theme === 'fallout' ? 'PIP-OS // QUEST_LOG' :
-                     'AGENDA // SYNC'}
+                    {theme === '90s' ? 'C:\\Windows\\Schedule' :
+                        theme === 'cyberpunk' ? 'OP_LOG // UPCOMING_TASKS' :
+                            theme === 'fallout' ? 'PIP-OS // QUEST_LOG' :
+                                theme === 'y2k' ? 'DATABANK // TASK_QUEUE' :
+                                    'AGENDA // SYNC'}
                 </h2>
             )}
-            
-            {theme === 'material' && <h2 style={{ fontSize: '1.4rem', fontWeight: '500', marginBottom: '20px' }}>Upcoming Schedule</h2>}
-            
-            {theme !== '90s' && theme !== 'fallout' && theme !== 'material' && <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>}
-            
-            {theme === '90s' && <div className="win95-explorer-headers"><div className="header-time">Time</div><div className="header-event">Event Name</div></div>}
 
+            {theme === 'material' && <h2 style={{ fontSize: '1.4rem', fontWeight: '500', marginBottom: '20px' }}>Upcoming Schedule</h2>}
+
+            {theme === 'y2k' && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--accent)', paddingBottom: '5px', marginBottom: '10px', fontSize: '10px' }}>
+                    <span>EVENT_ID</span>
+                    <span>T-MINUS</span>
+                </div>
+            )}
+
+            {theme !== '90s' && theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>}
             <div className={theme === '90s' ? 'win95-explorer-body' : theme === 'material' ? 'md-agenda-list' : ''}>
                 {uniqueEvents.length > 0 ? (
                     <div style={{ padding: 0, margin: 0, lineHeight: '1.6' }}>

@@ -29,13 +29,13 @@ export default function Weather() {
         <div className={`dashboard-panel weather-module ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
             {theme !== 'material' && (
                 <h2>
-                    {theme === '90s' ? 'Minesweeper' : 
-                     theme === 'cyberpunk' ? 'ATMOS_SCAN // KREMENCHUK_SECTOR' : 
-                     theme === 'fallout' ? 'ROBCO_ENV // LOCAL_CLIMATOLOGY' :
-                     'METEO_DATA // KREMENCHUK'}
+                    {theme === '90s' ? 'Minesweeper' :
+                        theme === 'cyberpunk' ? 'ATMOS_SCAN // KREMENCHUK_SECTOR' :
+                            theme === 'fallout' ? 'ROBCO_ENV // LOCAL_CLIMATOLOGY' :
+                                'METEO_DATA // KREMENCHUK'}
                 </h2>
             )}
-            
+
             {theme === '90s' ? (
                 /* ... Keep existing 90s code ... */
                 <div className="win95-minesweeper-body">
@@ -45,7 +45,7 @@ export default function Weather() {
                         <div className="ms-digital">{weather ? String(weather.humidity).padStart(3, '0') : '000'}</div>
                     </div>
                     <div className="ms-stats-area">
-                        {weather ? ( <><div>Wind: {weather.wind} km/h</div><div>Pressure: {weather.pressure}</div></> ) : ( <div>Loading...</div> )}
+                        {weather ? (<><div>Wind: {weather.wind} km/h</div><div>Pressure: {weather.pressure}</div></>) : (<div>Loading...</div>)}
                     </div>
                 </div>
             ) : theme === 'cyberpunk' ? (
@@ -57,7 +57,7 @@ export default function Weather() {
                             <div className="cp-atmos-block"><span className="cp-atmos-label">HUMIDITY</span><span className="cp-atmos-val">{weather.humidity}%</span></div>
                             <div className="cp-atmos-block"><span className="cp-atmos-label">WIND</span><span className="cp-atmos-val">{weather.wind}</span></div>
                         </div>
-                    ) : ( <div style={{ opacity: 0.5 }}>&gt; SENSORS OFFLINE...</div> )}
+                    ) : (<div style={{ opacity: 0.5 }}>&gt; SENSORS OFFLINE...</div>)}
                 </div>
             ) : theme === 'fallout' ? (
                 /* ... Keep existing Fallout code ... */
@@ -67,7 +67,7 @@ export default function Weather() {
                             <div className="fo-stat-line"><span className="fo-label">EXT_TEMP:</span><span>{weather.temp} DEG_C</span></div>
                             <div className="fo-stat-line"><span className="fo-label">RAD_STORMS:</span><span>{drawFalloutBar(weather.precip_chance)}</span></div>
                         </div>
-                    ) : ( <div style={{ opacity: 0.5 }}>&gt; RECALIBRATING...</div> )}
+                    ) : (<div style={{ opacity: 0.5 }}>&gt; RECALIBRATING...</div>)}
                 </div>
             ) : theme === 'material' ? (
                 /* Material You Weather Layout */
@@ -95,16 +95,18 @@ export default function Weather() {
                 <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #2a4b66', paddingBottom: '5px', marginBottom: '15px' }}>
                         <span style={{ color: 'var(--accent)' }}>STATUS:</span>
-                        <span style={{ fontWeight: 'bold' }}>{weather ? weather.condition.toUpperCase() : 'SCANNING...'}</span>
+                        <span style={{ fontWeight: 'bold' }}>
+                            {weather ? (weather.precip_chance > 50 ? 'WARNING: PRECIPITATION' : 'OPTIMAL') : 'SCANNING...'}
+                        </span>
                     </div>
-                    
+
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
                         <div style={{ fontSize: '38px', color: '#ffffff', marginRight: '15px', textShadow: '0 0 10px rgba(123, 188, 213, 0.5)', lineHeight: 1 }}>
-                            {weather ? weather.temp_c : '--'}°
+                            {weather ? weather.temp : '--'}°
                         </div>
                         <div style={{ flex: 1 }}>
                             <div className="y2k-progress-bar" style={{ height: '6px', marginBottom: '4px', padding: '1px' }}>
-                                <div className="y2k-progress-block active" style={{ width: '75%' }}></div>
+                                <div className="y2k-progress-block active" style={{ width: weather ? '75%' : '0%' }}></div>
                             </div>
                             <div style={{ fontSize: '9px', opacity: 0.7, letterSpacing: '2px' }}>THERMAL_INDEX</div>
                         </div>
@@ -117,14 +119,14 @@ export default function Weather() {
                         </div>
                         <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '8px', border: '1px solid #2a4b66' }}>
                             <div style={{ fontSize: '9px', color: 'var(--accent)', marginBottom: '4px' }}>WIND_VELOCITY</div>
-                            <div style={{ color: '#fff', fontWeight: 'bold' }}>{weather ? weather.wind_kph : '--'} KPH</div>
+                            <div style={{ color: '#fff', fontWeight: 'bold' }}>{weather ? weather.wind : '--'} KM/H</div>
                         </div>
                         <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '8px', border: '1px solid #2a4b66', gridColumn: 'span 2' }}>
-                            <div style={{ fontSize: '9px', color: 'var(--accent)', marginBottom: '4px' }}>PRECIPITATION</div>
+                            <div style={{ fontSize: '9px', color: 'var(--accent)', marginBottom: '4px' }}>PRECIPITATION_PROB</div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ color: '#fff', fontWeight: 'bold' }}>{weather ? weather.precip_mm : '0'} MM</span>
-                                <span style={{ color: weather && weather.precip_mm > 0 ? '#ff9900' : 'var(--text)', fontSize: '9px', background: weather && weather.precip_mm > 0 ? 'rgba(255, 153, 0, 0.1)' : 'transparent', padding: '2px 6px', border: weather && weather.precip_mm > 0 ? '1px solid #ff9900' : 'none' }}>
-                                    {weather && weather.precip_mm > 0 ? '[ ALERT ]' : '[ CLEAR ]'}
+                                <span style={{ color: '#fff', fontWeight: 'bold' }}>{weather ? weather.precip_chance : '0'}%</span>
+                                <span style={{ color: weather && weather.precip_chance > 0 ? '#ff9900' : 'var(--text)', fontSize: '9px', background: weather && weather.precip_chance > 0 ? 'rgba(255, 153, 0, 0.1)' : 'transparent', padding: '2px 6px', border: weather && weather.precip_chance > 0 ? '1px solid #ff9900' : 'none' }}>
+                                    {weather && weather.precip_chance > 0 ? '[ ALERT ]' : '[ CLEAR ]'}
                                 </span>
                             </div>
                         </div>
