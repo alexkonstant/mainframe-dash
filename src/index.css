@@ -1913,3 +1913,77 @@ body {
   text-shadow: none;
   transform: none; /* Disables the cyberpunk slide effect */
 }
+
+/* Y2K Segmented Progress Bars */
+[data-theme="y2k"] .y2k-progress-bar {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #2a4b66;
+  padding: 2px;
+  margin-top: 5px;
+}
+[data-theme="y2k"] .y2k-progress-block {
+  flex: 1;
+  background: #162942;
+  transition: all 0.3s ease;
+}
+[data-theme="y2k"] .y2k-progress-block.active {
+  background: var(--accent);
+  box-shadow: 0 0 5px rgba(255, 153, 0, 0.5); /* 2advanced Orange Glow */
+}
+[data-theme="y2k"] .y2k-stat-row {
+  margin-bottom: 12px;
+}
+
+/* =========================================
+   BUILT-IN THEME WALLPAPERS
+   ========================================= */
+
+/* --- Y2K FLASH VARIANTS --- */
+[data-theme="y2k"][data-wallpaper="1"] body {
+  /* Classic Micro-Grid */
+  background-image: linear-gradient(rgba(123, 188, 213, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(123, 188, 213, 0.05) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+[data-theme="y2k"][data-wallpaper="2"] body {
+  /* Metallic Server Scanlines */
+  background: repeating-linear-gradient(0deg, #070c16, #070c16 2px, #0a1220 2px, #0a1220 4px);
+}
+[data-theme="y2k"][data-wallpaper="3"] body {
+  /* Radial Tech Burst */
+  background: radial-gradient(circle at center, #162942 0%, #070c16 100%);
+}
+
+/* --- WINDOWS 95 VARIANTS --- */
+[data-theme="90s"][data-wallpaper="1"] body { background: #008080; } /* Classic Teal */
+[data-theme="90s"][data-wallpaper="2"] body { background: #000000; } /* Pitch Black */
+[data-theme="90s"][data-wallpaper="3"] body {
+  /* Classic 90s Gray Sand Pattern */
+  background-image: radial-gradient(#c0c0c0 15%, transparent 16%), radial-gradient(#c0c0c0 15%, transparent 16%);
+  background-size: 4px 4px; background-position: 0 0, 2px 2px; background-color: #808080;
+}
+
+/* --- CYBERPUNK VARIANTS --- */
+[data-theme="cyberpunk"][data-wallpaper="1"] body { background: #02040a; } /* Deep Void */
+[data-theme="cyberpunk"][data-wallpaper="2"] body {
+  /* Hex Grid */
+  background: radial-gradient(circle, transparent 20%, #02040a 20%, #02040a 80%, transparent 80%, transparent), radial-gradient(circle, transparent 20%, #02040a 20%, #02040a 80%, transparent 80%, transparent) 25px 25px, linear-gradient(#00e5ff 2px, transparent 2px) 0 -1px, linear-gradient(90deg, #00e5ff 2px, #02040a 2px) -1px 0;
+  background-size: 50px 50px, 50px 50px, 25px 25px, 25px 25px; opacity: 0.1;
+}
+[data-theme="cyberpunk"][data-wallpaper="3"] body { background: radial-gradient(ellipse at top, #1a0033 0%, #02040a 100%); } /* Neon Purple Haze */
+
+/* --- FALLOUT VARIANTS --- */
+[data-theme="fallout"][data-wallpaper="1"] body { background: #050500; } /* Pitch CRT */
+[data-theme="fallout"][data-wallpaper="2"] body {
+  /* Amber Phosphor Mesh */
+  background-image: linear-gradient(rgba(255, 176, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 176, 0, 0.05) 1px, transparent 1px); background-size: 4px 4px;
+}
+[data-theme="fallout"][data-wallpaper="3"] body { background: radial-gradient(circle, #1a1a00 0%, #050500 100%); } /* Terminal Glow */
+
+/* --- MATERIAL YOU VARIANTS --- */
+[data-theme="material"][data-wallpaper="1"] body { background: #140F1D; } /* Amethyst */
+[data-theme="material"][data-wallpaper="2"] body { background: linear-gradient(135deg, #140F1D 0%, #271E3A 100%); } /* Smooth Gradient */
+[data-theme="material"][data-wallpaper="3"] body { background: #1a1423; } /* Muted Grape */

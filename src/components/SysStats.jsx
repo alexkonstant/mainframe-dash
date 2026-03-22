@@ -20,23 +20,34 @@ export default function SysStats({ stats }) {
             </div>
         );
     };
+
+    const drawY2KBar = (percent) => {
+        const totalBlocks = 20;
+        const activeBlocks = Math.round((percent / 100) * totalBlocks);
+        return (
+            <div className="y2k-progress-bar">
+                {[...Array(totalBlocks)].map((_, i) => (
+                    <div key={i} className={`y2k-progress-block ${i < activeBlocks ? 'active' : ''}`}></div>
+                ))}
+            </div>
+        );
+    };
 return (
-        <div className={`dashboard-panel sys-stats ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
-            {theme !== 'material' && (
-                <h2>
-                    {theme === '90s' ? 'SYS_STATS // PI_1_MODEL_B' : 
-                     theme === 'cyberpunk' ? 'CORE_DIAGNOSTICS // OPTICS_MK.1' : 
-                     theme === 'fallout' ? 'ROBCO_OS // HARDWARE_DIAGNOSTICS' :
-                     'SYS_STATS // PI_1_MODEL_B'}
-                </h2>
-            )}
-            
+    <div className={`dashboard-panel sys-stats ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+        <h2>
+            {theme === '90s' ? 'System Properties' :
+                theme === 'cyberpunk' ? 'CORE_DIAGNOSTICS' :
+                    theme === 'fallout' ? 'ROBCO_SYS_MONITOR' :
+                        theme === 'y2k' ? 'SYS_TELEMETRY // LIVE' :
+                            'HARDWARE_MONITOR'}
+        </h2>
+
             {theme !== 'fallout' && theme !== 'material' && (
                 <div style={{ opacity: theme === '90s' ? 1 : 0.7, marginBottom: '15px', fontStyle: theme === '90s' ? 'normal' : 'italic' }}>
                     {theme === '90s' ? `Status:  ${status.replace('>', '').trim()}` : status}
                 </div>
             )}
-            
+
             {stats ? (
                 <div style={{ lineHeight: '1.6' }}>
                     {theme === '90s' ? (
@@ -65,18 +76,18 @@ return (
                         /* Material You Layout */
                         <div className="md-stats-container">
                             <h2 style={{ fontSize: '1.4rem', fontWeight: '500', marginBottom: '20px' }}>Device Health</h2>
-                            
+
                             <div className="md-stat-group">
                                 <div className="md-stat-header"><span>CPU Load</span><span>{stats.cpu_percent}%</span></div>
                                 <div className="md-progress-track"><div className="md-progress-fill" style={{ width: `${stats.cpu_percent}%` }}></div></div>
                             </div>
-                            
+
                             <div className="md-stat-group">
                                 <div className="md-stat-header"><span>Memory</span><span>{stats.ram_percent}%</span></div>
                                 <div className="md-progress-track"><div className="md-progress-fill" style={{ width: `${stats.ram_percent}%` }}></div></div>
                                 <div className="md-stat-subtext">{stats.ram_used_mb} MB of {stats.ram_total_mb} MB</div>
                             </div>
-                            
+
                             <div className="md-stat-group" style={{ marginTop: '10px' }}>
                                 <div className="md-stat-header">
                                     <span>Thermal Core</span>
@@ -84,6 +95,32 @@ return (
                                         {stats.temp_c > 0 ? `${stats.temp_c}°C` : 'Offline'}
                                     </span>
                                 </div>
+                            </div>
+                        </div>
+                    ) : theme === 'y2k' ? (
+                        <div>
+                            <div className="y2k-stat-row">
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>CPU_USAGE:</span>
+                                    <span style={{ color: 'var(--accent)' }}>{stats ? stats.cpu_percent : 0}%</span>
+                                </div>
+                                {drawY2KBar(stats ? stats.cpu_percent : 0)}
+                            </div>
+                            <div className="y2k-stat-row">
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>MEMORY_ALLOC:</span>
+                                    <span style={{ color: 'var(--accent)' }}>{stats ? stats.ram_percent : 0}%</span>
+                                </div>
+                                {drawY2KBar(stats ? stats.ram_percent : 0)}
+                            </div>
+                            <div className="y2k-stat-row">
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>THERMAL_CORE:</span>
+                                    <span style={{ color: stats && stats.temp_c > 75 ? '#ff0055' : 'var(--text)' }}>
+                                {stats ? stats.temp_c : 0}°C
+                            </span>
+                                </div>
+                                {drawY2KBar(stats ? (stats.temp_c / 85) * 100 : 0)}
                             </div>
                         </div>
                     ) : (

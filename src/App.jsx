@@ -16,20 +16,46 @@ import MediaDeck from './components/MediaDeck';
 
 const ThemeSelector = () => {
   const { theme, setTheme } = useContext(ThemeContext);
+  const [wallpaper, setWallpaper] = useState(1);
+
+  // Updates the HTML element with the wallpaper attribute so CSS can catch it
+  useEffect(() => {
+    document.documentElement.setAttribute('data-wallpaper', wallpaper);
+  }, [wallpaper]);
+
+  const cycleWallpaper = () => {
+    setWallpaper(prev => prev >= 3 ? 1 : prev + 1);
+  };
+
   return (
-    <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 100 }}>
-      <select
-        value={theme}
-        onChange={(e) => setTheme(e.target.value)}
-        className="theme-selector"
-      >
-        <option value="90s">Windows 95</option>
-        <option value="cyberpunk">Cyberpunk</option>
-        <option value="fallout">RobCo Terminal</option>
-        <option value="material">Material You</option>
-        <option value="y2k">Y2K Flash</option> {/* <-- ADD THIS LINE */}
-      </select>
-    </div>
+      <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 100, display: 'flex', gap: '10px' }}>
+
+        {/* Background Variant Toggle */}
+        <button
+            onClick={cycleWallpaper}
+            className="theme-selector"
+            style={{ padding: '8px 12px', minWidth: '60px', textAlign: 'center' }}
+            title="Cycle Background Pattern"
+        >
+          BG: 0{wallpaper}
+        </button>
+
+        {/* Main Theme Dropdown */}
+        <select
+            value={theme}
+            onChange={(e) => {
+              setTheme(e.target.value);
+              setWallpaper(1); // Reset to default variant when changing themes
+            }}
+            className="theme-selector"
+        >
+          <option value="90s">Windows 95</option>
+          <option value="cyberpunk">Cyberpunk</option>
+          <option value="fallout">RobCo Terminal</option>
+          <option value="y2k">Y2K Flash</option>
+          <option value="material">Material You</option>
+        </select>
+      </div>
   );
 };
 
