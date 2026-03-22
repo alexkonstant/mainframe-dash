@@ -91,6 +91,45 @@ export default function Weather() {
                         <div style={{ opacity: 0.5, padding: '20px' }}>Syncing weather...</div>
                     )}
                 </div>
+            ) : theme === 'y2k' ? (
+                <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #2a4b66', paddingBottom: '5px', marginBottom: '15px' }}>
+                        <span style={{ color: 'var(--accent)' }}>STATUS:</span>
+                        <span style={{ fontWeight: 'bold' }}>{weather ? weather.condition.toUpperCase() : 'SCANNING...'}</span>
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+                        <div style={{ fontSize: '38px', color: '#ffffff', marginRight: '15px', textShadow: '0 0 10px rgba(123, 188, 213, 0.5)', lineHeight: 1 }}>
+                            {weather ? weather.temp_c : '--'}°
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <div className="y2k-progress-bar" style={{ height: '6px', marginBottom: '4px', padding: '1px' }}>
+                                <div className="y2k-progress-block active" style={{ width: '75%' }}></div>
+                            </div>
+                            <div style={{ fontSize: '9px', opacity: 0.7, letterSpacing: '2px' }}>THERMAL_INDEX</div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '8px', border: '1px solid #2a4b66' }}>
+                            <div style={{ fontSize: '9px', color: 'var(--accent)', marginBottom: '4px' }}>HUMIDITY</div>
+                            <div style={{ color: '#fff', fontWeight: 'bold' }}>{weather ? weather.humidity : '--'}%</div>
+                        </div>
+                        <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '8px', border: '1px solid #2a4b66' }}>
+                            <div style={{ fontSize: '9px', color: 'var(--accent)', marginBottom: '4px' }}>WIND_VELOCITY</div>
+                            <div style={{ color: '#fff', fontWeight: 'bold' }}>{weather ? weather.wind_kph : '--'} KPH</div>
+                        </div>
+                        <div style={{ background: 'rgba(0, 0, 0, 0.5)', padding: '8px', border: '1px solid #2a4b66', gridColumn: 'span 2' }}>
+                            <div style={{ fontSize: '9px', color: 'var(--accent)', marginBottom: '4px' }}>PRECIPITATION</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ color: '#fff', fontWeight: 'bold' }}>{weather ? weather.precip_mm : '0'} MM</span>
+                                <span style={{ color: weather && weather.precip_mm > 0 ? '#ff9900' : 'var(--text)', fontSize: '9px', background: weather && weather.precip_mm > 0 ? 'rgba(255, 153, 0, 0.1)' : 'transparent', padding: '2px 6px', border: weather && weather.precip_mm > 0 ? '1px solid #ff9900' : 'none' }}>
+                                    {weather && weather.precip_mm > 0 ? '[ ALERT ]' : '[ CLEAR ]'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             ) : (
                 /* Fallback */
                 <div>{weather ? `Temp: ${weather.temp}°C` : status}</div>

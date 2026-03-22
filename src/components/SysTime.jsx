@@ -56,6 +56,22 @@ export default function SysTime() {
                     <div className="md-time">{time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}</div>
                     <div className="md-date">{time.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
                 </div>
+            ) : theme === 'y2k' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', padding: '5px 0' }}>
+                    <div style={{ fontSize: '9px', color: 'var(--accent)', letterSpacing: '4px', marginBottom: '5px' }}>LOCAL_CHRONO_SYNC</div>
+                    <div style={{ fontSize: '38px', color: '#ffffff', textShadow: '0 0 15px rgba(123, 188, 213, 0.6)', lineHeight: 1, fontWeight: 'bold' }}>
+                        {time.toLocaleTimeString('en-US', { hour12: false })}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '8px', width: '100%' }}>
+                        <div style={{ flex: 1, height: '1px', background: '#2a4b66', marginRight: '10px' }}></div>
+                        <div style={{ fontSize: '10px', letterSpacing: '2px', color: 'var(--text)' }}>
+                            {time.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.')}
+                        </div>
+                    </div>
+                    <div style={{ fontSize: '9px', color: '#2a4b66', marginTop: '10px', fontFamily: 'monospace' }}>
+                        UNIX_TS: {Math.floor(time.getTime() / 1000)}
+                    </div>
+                </div>
             ) : (
                 <>
                     <div style={{ fontSize: '2.5em', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center', margin: '15px 0' }}>{time.toLocaleTimeString('en-US', { hour12: false })}</div>
