@@ -40,7 +40,7 @@ export default function Shortcuts() {
     const syncToHardware = async (updatedLinks) => {
         setStatus("> Writing to RAM...");
         try {
-            await fetch('/api/shortcuts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedLinks) });
+            const res = await fetch('/api/shortcuts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedLinks) });
             setStatus("> Committing to SD Card...");
             await fetch('/api/commit', { method: 'POST' });
             setLinks(updatedLinks);
@@ -54,40 +54,56 @@ export default function Shortcuts() {
         e.preventDefault();
         if (!newName || !newUrl) return;
         const formattedUrl = newUrl.startsWith('http') ? newUrl : `https://${newUrl}`;
-        syncToHardware([...links, { name: newName, url: formattedUrl }]);
+        const updatedLinks = [...links, { name: newName, url: formattedUrl }];
+        // Optimistic UI update before sync finishes
+        setLinks(updatedLinks);
+        syncToHardware(updatedLinks);
         setNewName(''); setNewUrl('');
     };
 
     const handleDelete = (index) => {
-        syncToHardware(links.filter((_, i) => i !== index));
+        const updatedLinks = links.filter((_, i) => i !== index);
+        setLinks(updatedLinks);
+        syncToHardware(updatedLinks);
     };
 
     return (
         <div className={`dashboard-panel shortcuts-module ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+            
+            {/* Header Block */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                 <h2 style={{ margin: 0, flexGrow: 1 }}>
                     {theme === '90s' ? 'Control Panel' :
                         theme === 'cyberpunk' ? 'DATA_PORTS // SECURE_UPLINK' :
                             theme === 'fallout' ? 'ROBCO_IND // TERMLINK_PROTOCOL' :
                                 theme === 'material' ? 'Favorites' :
+                                    theme === 'y2k' ? 'UPLINK_DIR // QUICK_ACCESS' :
                                     'QUICK_LINKS // DIRECTORY'}
                 </h2>
                 <button
                     onClick={() => setIsEditing(!isEditing)}
                     className={theme === 'fallout' ? 'fo-edit-btn' : theme === 'material' ? (isEditing ? 'md-btn-active' : 'md-btn-tonal') : ''}
-                    style={theme !== 'fallout' && theme !== 'material' ? { background: isEditing ? 'var(--accent)' : 'transparent', color: isEditing ? 'var(--bg)' : 'var(--accent)', border: '1px solid var(--accent)', cursor: 'pointer', fontWeight: 'bold', padding: '5px 10px' } : {}}
+                    style={theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' ? { background: isEditing ? 'var(--accent)' : 'transparent', color: isEditing ? 'var(--bg)' : 'var(--accent)', border: '1px solid var(--accent)', cursor: 'pointer', fontWeight: 'bold', padding: '5px 10px' } : theme === 'y2k' ? { padding: '4px 10px' } : {}}
                 >
                     {isEditing ? (theme === 'material' ? 'Done' : '[ DONE ]') : (theme === 'material' ? 'Edit' : '[ EDIT ]')}
                 </button>
             </div>
 
-            {/* Terminal status text (hidden for 90s and Material You) */}
-            {theme !== '90s' && theme !== 'material' && (
+            {/* Terminal status text (hidden for 90s, Material You, and Y2K) */}
+            {theme !== '90s' && theme !== 'material' && theme !== 'y2k' && (
                 <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>
             )}
 
-            {/* Single Unified Grid */}
-            <div className={theme === '90s' ? 'win95-desktop-icons' : theme === 'cyberpunk' ? 'cp-shortcuts-grid' : theme === 'fallout' ? 'fo-termlink-list' : theme === 'material' ? 'md-shortcuts-grid' : ''} style={theme !== '90s' && theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' } : {}}>
+            {/* Y2K Status Header Override */}
+            {theme === 'y2k' && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #2a4b66', paddingBottom: '4px', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '9px', color: 'var(--accent)', letterSpacing: '2px' }}>ROUTING_NODES</span>
+                    <span style={{ fontSize: '9px', opacity: 0.7 }}>[ {links.length} ACTIVE ]</span>
+                </div>
+            )}
+
+            {/* Single Unified Grid / List Rendering */}
+            <div className={theme === '90s' ? 'win95-desktop-icons' : theme === 'cyberpunk' ? 'cp-shortcuts-grid' : theme === 'fallout' ? 'fo-termlink-list' : theme === 'material' ? 'md-shortcuts-grid' : ''} style={theme !== '90s' && theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' } : theme === 'y2k' ? { display: 'flex', flexDirection: 'column', gap: '5px' } : {}}>
                 {links.map((link, i) => (
                     theme === '90s' ? (
                         <div key={i} style={{ position: 'relative' }}>
@@ -118,6 +134,24 @@ export default function Shortcuts() {
                                 {link.name}
                             </a>
                         </div>
+                    ) : theme === 'y2k' ? (
+                        /* Y2K 2advanced Node Block */
+                        <div key={i} style={{ display: 'flex', gap: '5px', position: 'relative' }}>
+                            {isEditing && (
+                                <button onClick={() => handleDelete(i)} style={{ background: '#162942', color: '#ff0055', border: '1px solid #ff0055', cursor: 'pointer', fontSize: '9px', padding: '0 8px', letterSpacing: '1px' }}>
+                                    [X]
+                                </button>
+                            )}
+                            <a href={link.url} target="_blank" rel="noreferrer" style={{ 
+                                flexGrow: 1, display: 'flex', alignItems: 'center', padding: '6px 10px', 
+                                background: 'rgba(0,0,0,0.4)', border: '1px solid #2a4b66', color: '#7bbcd5', 
+                                textDecoration: 'none', fontSize: '10px', letterSpacing: '1px', position: 'relative'
+                            }}>
+                                <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '2px', background: 'var(--accent)' }}></div>
+                                <span style={{ color: 'var(--accent)', marginRight: '8px' }}>&gt;&gt;</span>
+                                {link.name.toUpperCase()}
+                            </a>
+                        </div>
                     ) : (
                         <div key={i} style={{ display: 'flex', gap: '5px' }}>
                             {isEditing && <button onClick={() => handleDelete(i)} style={{ background: '#ff0055', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>X</button>}
@@ -129,13 +163,27 @@ export default function Shortcuts() {
                 ))}
             </div>
 
+            {/* Themed Injection Form */}
             {isEditing && (
-                <form onSubmit={handleAdd} style={{ marginTop: '20px', padding: '15px', border: theme === '90s' ? '1px solid #808080' : theme === 'material' ? 'none' : '1px dashed var(--accent)', background: theme === '90s' ? '#c0c0c0' : theme === 'material' ? 'var(--secondary-bg)' : 'rgba(0,0,0,0.2)', borderRadius: theme === 'material' ? '16px' : '0' }}>
-                    <div style={{ marginBottom: '10px', fontWeight: 'bold', color: theme === '90s' ? '#000' : theme === 'material' ? 'var(--text)' : 'var(--accent)' }}>{theme === 'material' ? 'Add New Link' : '> INJECT_NEW_UPLINK'}</div>
+                <form onSubmit={handleAdd} style={{ 
+                    marginTop: '20px', padding: '15px', 
+                    border: theme === '90s' ? '1px solid #808080' : theme === 'material' ? 'none' : theme === 'y2k' ? '1px solid #2a4b66' : '1px dashed var(--accent)', 
+                    background: theme === '90s' ? '#c0c0c0' : theme === 'material' ? 'var(--secondary-bg)' : theme === 'y2k' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.2)', 
+                    borderRadius: theme === 'material' ? '16px' : '0',
+                    position: 'relative'
+                }}>
+                    {theme === 'y2k' && <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '2px', background: 'var(--accent)' }}></div>}
+                    
+                    <div style={{ marginBottom: '10px', fontWeight: 'bold', fontSize: theme === 'y2k' ? '9px' : 'inherit', color: theme === '90s' ? '#000' : theme === 'material' ? 'var(--text)' : 'var(--accent)', letterSpacing: theme === 'y2k' ? '2px' : 'normal' }}>
+                        {theme === 'material' ? 'Add New Link' : theme === 'y2k' ? 'SYS_REQ // INJECT_NEW_NODE' : '> INJECT_NEW_UPLINK'}
+                    </div>
+                    
                     <div style={{ display: 'flex', gap: '10px' }}>
-                        <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="NAME" style={{ background: theme === '90s' ? '#fff' : 'transparent', border: theme === 'material' ? '1px solid rgba(255,255,255,0.2)' : '1px solid var(--accent)', color: theme === '90s' ? '#000' : 'var(--text)', padding: '5px', width: '100%', boxSizing: 'border-box', fontFamily: 'var(--font)', borderRadius: theme === 'material' ? '8px' : '0' }} />
-                        <input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="URL" style={{ background: theme === '90s' ? '#fff' : 'transparent', border: theme === 'material' ? '1px solid rgba(255,255,255,0.2)' : '1px solid var(--accent)', color: theme === '90s' ? '#000' : 'var(--text)', padding: '5px', width: '100%', boxSizing: 'border-box', fontFamily: 'var(--font)', borderRadius: theme === 'material' ? '8px' : '0' }} />
-                        <button type="submit" className={theme === 'fallout' ? 'fo-edit-btn' : theme === 'material' ? 'md-btn-active' : ''} style={theme !== 'fallout' && theme !== 'material' ? { background: 'var(--bg)', color: 'var(--accent)', border: '1px solid var(--accent)' } : {}}>ADD</button>
+                        <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="NAME" style={{ background: theme === '90s' ? '#fff' : theme === 'y2k' ? '#070c16' : 'transparent', border: theme === 'material' ? '1px solid rgba(255,255,255,0.2)' : theme === 'y2k' ? '1px solid #2a4b66' : '1px solid var(--accent)', color: theme === '90s' ? '#000' : theme === 'y2k' ? '#7bbcd5' : 'var(--text)', padding: '5px', width: '100%', boxSizing: 'border-box', fontFamily: 'var(--font)', borderRadius: theme === 'material' ? '8px' : '0', fontSize: theme === 'y2k' ? '9px' : 'inherit' }} />
+                        <input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="URL" style={{ background: theme === '90s' ? '#fff' : theme === 'y2k' ? '#070c16' : 'transparent', border: theme === 'material' ? '1px solid rgba(255,255,255,0.2)' : theme === 'y2k' ? '1px solid #2a4b66' : '1px solid var(--accent)', color: theme === '90s' ? '#000' : theme === 'y2k' ? '#7bbcd5' : 'var(--text)', padding: '5px', width: '100%', boxSizing: 'border-box', fontFamily: 'var(--font)', borderRadius: theme === 'material' ? '8px' : '0', fontSize: theme === 'y2k' ? '9px' : 'inherit' }} />
+                        <button type="submit" className={theme === 'fallout' ? 'fo-edit-btn' : theme === 'material' ? 'md-btn-active' : ''} style={theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' ? { background: 'var(--bg)', color: 'var(--accent)', border: '1px solid var(--accent)' } : theme === 'y2k' ? { cursor: 'pointer' } : {}}>
+                            {theme === 'y2k' ? '[ ADD ]' : 'ADD'}
+                        </button>
                     </div>
                 </form>
             )}
