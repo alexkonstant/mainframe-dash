@@ -1,94 +1,177 @@
 import { useState, useContext } from 'react';
 import { ThemeContext } from '../ThemeContext';
 
-export default function LocalDevices({ devices }) {
-    const { theme } = useContext(ThemeContext);
+export default function LocalDevices({ devices = [] }) {
     const [isScanning, setIsScanning] = useState(false);
-    
-    // Derived status
-    const status = devices && devices.length > 0 
-        ? `> ${devices.length} nodes detected.` 
-        : "> Sweeping local subnet...";
+    const { theme } = useContext(ThemeContext);
 
-    const scanNetwork = () => {
+    // Since the actual data arrives passively from the master_sync payload,
+    // this function just provides visual UI feedback when a user clicks "Scan".
+    const triggerVisualScan = () => {
         setIsScanning(true);
-        // Force an immediate manual scan to the backend
-        fetch('/api/network/scan')
-            .then(() => setIsScanning(false))
-            .catch(() => setIsScanning(false));
+        setTimeout(() => setIsScanning(false), 1500);
     };
 
     return (
-        <div className={`dashboard-panel local-devices ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                <h2 style={{ margin: 0 }}>
-                    {theme === '90s' ? 'Network Neighborhood' : 
-                     theme === 'cyberpunk' ? 'LOCAL_NET // NODE_SCANNER' : 
-                     theme === 'fallout' ? 'ROBCO_NET // LOCAL_TOPOLOGY' :
-                     theme === 'material' ? 'Connected Devices' :
-                     'LOCAL_DEVICES'}
-                </h2>
-                <button 
-                    onClick={scanNetwork} 
-                    disabled={isScanning}
-                    className={theme === 'fallout' ? 'fo-edit-btn' : theme === 'material' ? 'md-btn-tonal' : ''}
-                    style={theme !== 'fallout' && theme !== 'material' ? { background: 'transparent', color: 'var(--accent)', border: '1px solid var(--accent)', cursor: isScanning ? 'wait' : 'pointer', fontWeight: 'bold', padding: '5px 10px', opacity: isScanning ? 0.5 : 1 } : { opacity: isScanning ? 0.5 : 1 }}
-                >
-                    {isScanning ? (theme === 'material' ? 'Scanning...' : '[ SCANNING ]') : (theme === 'material' ? 'Rescan' : '[ RESCAN ]')}
-                </button>
-            </div>
+        <div
+            className={`dashboard-panel local-devices ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}
+            style={theme === '90s' ? { padding: 0, background: '#c0c0c0', border: '2px solid', borderColor: '#ffffff #000000 #000000 #ffffff' } : {}}
+        >
 
-            {theme !== 'material' && theme !== '90s' && (
-                <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>
-            )}
+            {/* Header Area (Hidden for 90s, handled inside the theme block below) */}
+            {theme !== '90s' && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: theme === 'material' ? '20px' : '10px' }}>
+                    <h2 style={{ flexGrow: 1, marginRight: '15px', marginBottom: theme === 'material' ? '0' : '' }}>
+                        {theme === 'cyberpunk' ? 'NET_SCAN // LOCAL_NODES' :
+                            theme === 'fallout' ? 'LOCAL_SUBNET // DETECTED' :
+                                theme === 'material' ? 'Connected Devices' :
+                                    theme === 'y2k' ? 'LAN_UPLINK // ACTIVE_NODES' :
+                                        'LOCAL_DEVICES // LAN'}
+                    </h2>
 
-            {theme === '90s' && (
-                <div className="win95-explorer-headers" style={{ marginBottom: '10px', display: 'flex' }}>
-                    <div style={{ flex: 1.5 }}>Device Name</div>
-                    <div style={{ flex: 1 }}>IP Address</div>
-                    <div style={{ flex: 1 }}>MAC Address</div>
+                    <button onClick={triggerVisualScan} disabled={isScanning}
+                            className={theme === 'fallout' ? 'fo-edit-btn' : theme === 'material' ? 'md-btn-tonal' : ''}
+                            style={theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' ? { background: 'transparent', color: 'var(--accent)', border: '1px solid var(--accent)', cursor: isScanning ? 'wait' : 'pointer', fontWeight: 'bold', padding: '5px 10px', height: 'fit-content', opacity: isScanning ? 0.5 : 1 }
+                                : { opacity: isScanning ? 0.5 : 1 }}
+                    >
+                        {theme === 'material' ? 'Refresh' : '[ SCAN ]'}
+                    </button>
                 </div>
             )}
 
-            <div className={theme === 'cyberpunk' ? 'cp-device-list' : theme === 'material' ? 'md-device-list' : ''} style={theme !== 'cyberpunk' && theme !== 'material' && theme !== '90s' ? { lineHeight: '1.6' } : {}}>
-                {devices && devices.length > 0 ? (
-                    devices.map((dev, i) => {
-                        const isUnknown = dev.name === '?';
-                        const displayName = isUnknown ? (theme === 'cyberpunk' ? 'UNKNOWN_ENTITY' : theme === 'fallout' ? 'GHOST_NODE' : 'Unknown Device') : dev.name;
+            {/* Default Status Indicators */}
+            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== '90s' && (
+                <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>
+                    {isScanning ? '> Sweeping local network...' : `> Tracking ${devices.length} active nodes.`}
+                </div>
+            )}
 
-                        return theme === 'cyberpunk' ? (
-                            <div key={i} className="cp-device-item">
-                                <div className="cp-dev-info">
-                                    <div className="cp-dev-name" style={{ color: isUnknown ? '#ff0055' : 'var(--text)' }}>{displayName}</div>
-                                    <div className="cp-dev-ip">{dev.ip}</div>
+            {/* --- 90s WINDOWS LAYOUT --- */}
+            {theme === '90s' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', padding: '2px' }}>
+
+                    {/* Classic Navy Blue Title Bar */}
+                    <div style={{ background: '#000080', color: '#ffffff', padding: '2px 4px', fontWeight: 'bold', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Network Neighborhood</span>
+                    </div>
+
+                    {/* Toolbar / Menu Area */}
+                    <div style={{ padding: '4px 2px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #808080', marginBottom: '4px' }}>
+                        <button onClick={triggerVisualScan} disabled={isScanning} style={{
+                            padding: '2px 10px',
+                            background: '#c0c0c0',
+                            color: '#000',
+                            borderTop: '1px solid #fff',
+                            borderLeft: '1px solid #fff',
+                            borderRight: '1px solid #000',
+                            borderBottom: '1px solid #000',
+                            boxShadow: 'inset -1px -1px #808080, inset 1px 1px #dfdfdf',
+                            cursor: isScanning ? 'wait' : 'pointer',
+                            fontWeight: 'normal',
+                            opacity: isScanning ? 0.7 : 1,
+                            fontSize: '11px',
+                            fontFamily: 'Arial, Helvetica, sans-serif'
+                        }}>
+                            {isScanning ? 'Scanning...' : 'Refresh'}
+                        </button>
+                        <span style={{ fontSize: '11px', color: '#000', fontFamily: 'Arial, Helvetica, sans-serif' }}>
+                            {isScanning ? 'Searching for computers...' : `${devices.length} object(s)`}
+                        </span>
+                    </div>
+
+                    {/* Sunken Content Area (Icon Grid) */}
+                    <div style={{
+                        background: '#ffffff',
+                        border: '2px solid',
+                        borderColor: '#808080 #ffffff #ffffff #808080',
+                        padding: '10px',
+                        maxHeight: '280px',
+                        overflowY: 'scroll',
+                        boxShadow: 'inset 1px 1px #000',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '15px',
+                        alignContent: 'flex-start'
+                    }}>
+                        {devices && devices.length > 0 ? devices.map((dev, i) => (
+                            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '70px' }}>
+                                <img
+                                    src="https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png"
+                                    alt="PC"
+                                    style={{ width: '32px', height: '32px', marginBottom: '5px', imageRendering: 'pixelated' }}
+                                />
+                                <span style={{
+                                    fontSize: '11px',
+                                    color: '#000',
+                                    fontFamily: 'Arial, Helvetica, sans-serif',
+                                    textAlign: 'center',
+                                    wordBreak: 'break-word',
+                                    lineHeight: '1.2'
+                                }}>
+                                    {dev.name || dev.ip || 'Unknown'}
+                                </span>
+                            </div>
+                        )) : (
+                            <div style={{ color: '#000', fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px' }}>
+                                {isScanning ? 'Scanning network...' : 'No computers found.'}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ) : theme === 'y2k' ? (
+                /* --- Y2K 2ADVANCED LAYOUT --- */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #2a4b66', paddingBottom: '4px', marginBottom: '5px' }}>
+                        <span style={{ fontSize: '9px', color: 'var(--accent)', letterSpacing: '2px' }}>LAN_UPLINK</span>
+                        <span style={{ fontSize: '9px', opacity: 0.7 }}>[ {devices.length} NODES ]</span>
+                    </div>
+
+                    <div style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '5px' }}>
+                        {devices && devices.length > 0 ? devices.map((dev, i) => (
+                            <div key={i} style={{
+                                background: 'rgba(0, 0, 0, 0.4)',
+                                border: '1px solid #2a4b66',
+                                padding: '8px',
+                                marginBottom: '8px',
+                                position: 'relative'
+                            }}>
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '2px', height: '100%', background: 'var(--accent)' }}></div>
+
+                                <div style={{ fontSize: '9px', color: 'var(--accent)', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>MAC: {dev.mac || 'UNKNOWN'}</span>
+                                    <span>ID_0{i + 1}</span>
                                 </div>
-                                <span className="cp-dev-mac">{dev.mac.toUpperCase()}</span>
-                            </div>
-                        ) : theme === 'fallout' ? (
-                            <div key={i} className="fo-log-row" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span>&gt; {displayName.toUpperCase()} <span style={{opacity: 0.6}}>[{dev.ip}]</span></span>
-                                <span style={{ opacity: 0.5 }}>{dev.mac}</span>
-                            </div>
-                        ) : theme === 'material' ? (
-                            <div key={i} className="md-device-card">
-                                <div className="md-dev-icon">{isUnknown ? '👻' : '📱'}</div>
-                                <div className="md-dev-info">
-                                    <div className="md-dev-name">{displayName}</div>
-                                    <div className="md-dev-ip">{dev.ip} <span style={{opacity: 0.5}}>• {dev.mac.toUpperCase()}</span></div>
+
+                                <div style={{ color: '#fff', fontSize: '10px', lineHeight: '1.4', marginBottom: '4px', fontWeight: 'bold' }}>
+                                    {dev.name || 'UNKNOWN_HOST'}
+                                </div>
+
+                                <div style={{ textAlign: 'right', fontSize: '9px', color: '#7bbcd5' }}>
+                                    [ IP: {dev.ip} ]
                                 </div>
                             </div>
-                        ) : (
-                            <div key={i} style={{ display: 'flex', borderBottom: theme === '90s' ? 'none' : '1px dashed var(--accent)', padding: '5px 0' }}>
-                                <span style={{ flex: 1.5 }}>{theme === '90s' ? '' : '> '}{displayName}</span>
-                                <span style={{ flex: 1 }}>{dev.ip}</span>
-                                <span style={{ flex: 1, opacity: 0.7 }}>{dev.mac}</span>
+                        )) : (
+                            <div style={{ opacity: 0.5, fontSize: '9px' }}>&gt; AWAITING_NETWORK_SCAN...</div>
+                        )}
+                    </div>
+                </div>
+            ) : devices && devices.length > 0 ? (
+                /* --- ORIGINAL RENDERING LOGIC (DEFAULT/CP/FO/MD) --- */
+                <div className={theme === 'cyberpunk' ? 'cp-device-grid' : theme === 'fallout' ? 'fo-device-list' : theme === 'material' ? 'md-device-list' : ''} style={theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' ? { display: 'flex', flexDirection: 'column', gap: '10px' } : {}}>
+                    {devices.map((dev, i) => (
+                        <div key={i} className={theme === 'cyberpunk' ? 'cp-device-node' : theme === 'fallout' ? 'fo-device-item' : theme === 'material' ? 'md-device-card' : ''} style={theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' ? { border: '1px solid var(--accent)', padding: '10px' } : {}}>
+                            {theme === 'cyberpunk' && <div className="cp-device-icon"></div>}
+                            <div className="device-info" style={theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' ? { display: 'flex', flexDirection: 'column', gap: '5px' } : {}}>
+                                <div className="device-name" style={theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' ? { fontWeight: 'bold', color: 'var(--accent)' } : {}}>{theme === 'fallout' ? `> ${dev.name.toUpperCase()}` : dev.name}</div>
+                                <div className="device-ip" style={theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' ? { fontSize: '0.9em' } : {}}>{theme === 'fallout' ? `  IP: ${dev.ip}` : dev.ip}</div>
+                                <div className="device-mac" style={theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' ? { fontSize: '0.8em', opacity: 0.6 } : {}}>{theme === 'fallout' ? `  MAC: ${dev.mac}` : dev.mac}</div>
                             </div>
-                        );
-                    })
-                ) : (
-                    <div style={{ opacity: 0.5, padding: '10px' }}>{isScanning ? 'Querying subnet...' : 'No devices found.'}</div>
-                )}
-            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div style={{ opacity: 0.5 }}>{theme === 'material' ? 'Scanning devices...' : '> NO LOCAL DEVICES DETECTED'}</div>
+            )}
         </div>
     );
 }

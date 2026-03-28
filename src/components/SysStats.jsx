@@ -3,7 +3,7 @@ import { ThemeContext } from '../ThemeContext';
 
 export default function SysStats({ stats }) {
     const { theme } = useContext(ThemeContext);
-    
+
     // Derive status directly from the prop instead of managing local state
     const status = stats ? "> Telemetry locked." : "> Establishing uplink...";
 
@@ -32,17 +32,19 @@ export default function SysStats({ stats }) {
             </div>
         );
     };
-return (
-    <div className={`dashboard-panel sys-stats ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
-        <h2>
-            {theme === '90s' ? 'System Properties' :
-                theme === 'cyberpunk' ? 'CORE_DIAGNOSTICS' :
-                    theme === 'fallout' ? 'ROBCO_SYS_MONITOR' :
-                        theme === 'y2k' ? 'SYS_TELEMETRY // LIVE' :
-                            'HARDWARE_MONITOR'}
-        </h2>
 
-            {theme !== 'fallout' && theme !== 'material' && (
+    return (
+        <div className={`dashboard-panel sys-stats ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+            <h2>
+                {theme === '90s' ? 'System Properties' :
+                    theme === 'cyberpunk' ? 'CORE_DIAGNOSTICS' :
+                        theme === 'fallout' ? 'ROBCO_SYS_MONITOR' :
+                            theme === 'y2k' ? 'SYS_TELEMETRY // LIVE' :
+                                theme === 'cli' ? 'SYS_STAT' :
+                                    'HARDWARE_MONITOR'}
+            </h2>
+
+            {theme !== 'fallout' && theme !== 'material' && theme !== 'cli' && (
                 <div style={{ opacity: theme === '90s' ? 1 : 0.7, marginBottom: '15px', fontStyle: theme === '90s' ? 'normal' : 'italic' }}>
                     {theme === '90s' ? `Status:  ${status.replace('>', '').trim()}` : status}
                 </div>
@@ -98,6 +100,7 @@ return (
                             </div>
                         </div>
                     ) : theme === 'y2k' ? (
+                        /* ... Y2K Layout ... */
                         <div>
                             <div className="y2k-stat-row">
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -117,10 +120,46 @@ return (
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <span>THERMAL_CORE:</span>
                                     <span style={{ color: stats && stats.temp_c > 75 ? '#ff0055' : 'var(--text)' }}>
-                                {stats ? stats.temp_c : 0}°C
-                            </span>
+                                        {stats ? stats.temp_c : 0}°C
+                                    </span>
                                 </div>
                                 {drawY2KBar(stats ? (stats.temp_c / 85) * 100 : 0)}
+                            </div>
+                        </div>
+                    ) : theme === 'cli' ? (
+                        /* --- CLI / TUI LAYOUT --- */
+                        <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', fontFamily: 'var(--font)' }}>
+                            <div style={{ color: 'var(--accent)', marginBottom: '12px' }}>
+                                root@mainframe:~# sysstat -a
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ color: '#888' }}>CPU_LOAD</span>
+                                <span style={{ color: stats.cpu_percent > 85 ? '#ff5555' : '#00ff00', whiteSpace: 'pre' }}>
+                                    {drawAsciiBar(stats.cpu_percent)} {String(stats.cpu_percent).padStart(3, ' ')}%
+                                </span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ color: '#888' }}>RAM_ALLOC</span>
+                                <span style={{ color: stats.ram_percent > 85 ? '#ff5555' : '#00ff00', whiteSpace: 'pre' }}>
+                                    {drawAsciiBar(stats.ram_percent)} {String(stats.ram_percent).padStart(3, ' ')}%
+                                </span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ color: '#888' }}>RAM_PAGES</span>
+                                <span style={{ color: '#ffff55' }}>
+                                    {String(stats.ram_used_mb).padStart(4, ' ')} / {stats.ram_total_mb} MB
+                                </span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ color: '#888' }}>CORE_TEMP</span>
+                                <span style={{ color: stats.temp_c > 75 ? '#ff5555' : '#00ff00' }}>
+                                    {stats.temp_c > 0 ? `${stats.temp_c}°C` : 'OFFLINE'}
+                                    {stats.temp_c > 75 ? ' [WARN]' : ' [ OK ]'}
+                                </span>
                             </div>
                         </div>
                     ) : (

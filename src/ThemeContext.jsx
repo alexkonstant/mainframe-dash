@@ -3,22 +3,25 @@ import { createContext, useState, useEffect } from 'react';
 export const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-    const [theme, setTheme] = useState(localStorage.getItem('dashboardTheme') || 'terminal');
+    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'default');
+
+    // Added 'cli' to the master rotation array
+    const themes = ['default', '90s', 'cyberpunk', 'fallout', 'material', 'y2k', 'cli'];
 
     useEffect(() => {
-        // Injects the theme directly into the root HTML tag for global CSS targeting
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('dashboardTheme', theme);
+        document.body.className = `theme-${theme}`;
+        localStorage.setItem('theme', theme);
     }, [theme]);
 
+    const cycleTheme = () => {
+        const currentIndex = themes.indexOf(theme);
+        const nextIndex = (currentIndex + 1) % themes.length;
+        setTheme(themes[nextIndex]);
+    };
+
     return (
-        <ThemeContext.Provider value={{ theme, setTheme }}>
-            {/* Conditional CRT overlay for retro themes */}
-            {(theme === 'fallout' || theme === 'terminal') && <div className="crt-scanlines"></div>}
-            
-            <div className={`app-container theme-${theme}`}>
-                {children}
-            </div>
+        <ThemeContext.Provider value={{ theme, cycleTheme, setTheme, themes }}>
+            {children}
         </ThemeContext.Provider>
     );
 };

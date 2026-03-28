@@ -25,16 +25,16 @@ const ThemeSelector = () => {
       <WallpaperManager />
 
       {/* Main Theme Dropdown */}
-      <select
-        value={theme}
-        onChange={(e) => setTheme(e.target.value)}
-        className="theme-selector"
-      >
+      <select value={theme} onChange={(e) => setTheme(e.target.value)} /* ... your existing styles ... */>
+        <option value="default">Default</option>
         <option value="90s">Windows 95</option>
-        <option value="cyberpunk">Cyberpunk</option>
-        <option value="fallout">RobCo Terminal</option>
-        <option value="y2k">Y2K Flash</option>
+        <option value="cyberpunk">Cyberpunk 2077</option>
+        <option value="fallout">Fallout</option>
         <option value="material">Material You</option>
+        <option value="y2k">Y2K / Flash</option>
+
+        {/* Add this new line right here: */}
+        <option value="cli">CLI / TUI Terminal</option>
       </select>
     </div>
   );

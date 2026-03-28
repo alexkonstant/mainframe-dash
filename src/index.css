@@ -1987,3 +1987,77 @@ body {
 [data-theme="material"][data-wallpaper="1"] body { background: #140F1D; } /* Amethyst */
 [data-theme="material"][data-wallpaper="2"] body { background: linear-gradient(135deg, #140F1D 0%, #271E3A 100%); } /* Smooth Gradient */
 [data-theme="material"][data-wallpaper="3"] body { background: #1a1423; } /* Muted Grape */
+
+
+/* =========================================
+   CLI / TUI (TEXT USER INTERFACE) THEME
+   ========================================= */
+.theme-cli {
+  --bg: #000000;
+  --panel-bg: #000000;
+  --text: #c0c0c0; /* Classic DOS Light Grey */
+  --accent: #00ffff; /* Cyan highlights */
+  --font: 'Consolas', 'Courier New', Courier, monospace;
+
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-weight: bold;
+}
+
+/* Base Terminal Window */
+.theme-cli .dashboard-panel {
+  background-color: var(--panel-bg);
+  border: 3px double #aaaaaa; /* Simulates the ╔════╗ ASCII border */
+  border-radius: 0;
+  /* Simulates the hard block-character drop shadow underneath TUI windows */
+  box-shadow: 12px 12px 0px rgba(85, 85, 85, 0.4);
+  padding: 20px 15px 15px 15px;
+  position: relative;
+  margin-bottom: 25px;
+}
+
+/* Emulate TUI Window Titles cutting through the top border */
+.theme-cli .dashboard-panel h2 {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%); /* Centers the title perfectly */
+  background: var(--panel-bg);
+  color: #ffffff;
+  padding: 0 10px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Global CLI Buttons */
+.theme-cli button {
+  background: transparent;
+  color: var(--accent);
+  border: none;
+  font-family: var(--font);
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.theme-cli button:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Overriding links for the CLI aesthetic */
+.theme-cli a {
+  color: #ffff55; /* Classic DOS Yellow */
+  text-decoration: none;
+}
+
+.theme-cli a:hover {
+  background: #ffff55;
+  color: #000;
+}

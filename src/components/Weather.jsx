@@ -6,92 +6,97 @@ export default function Weather() {
     const [status, setStatus] = useState("> Scanning atmosphere...");
     const { theme } = useContext(ThemeContext);
 
-    const fetchWeather = () => {
-        fetch('/api/weather')
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    setWeather(data);
-                }
-            })
-            .catch(() => setStatus("> ERR_ATMOSPHERE_OFFLINE"));
-    };
-
     useEffect(() => {
+        const fetchWeather = () => {
+            fetch('/api/weather')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        setWeather(data.weather || data);
+                        setStatus("> Atmos-data acquired.");
+                    }
+                })
+                .catch(() => setStatus("> ERR_METEO_OFFLINE"));
+        };
+
         fetchWeather();
+        // Refresh weather every 30 minutes
         const interval = setInterval(fetchWeather, 1800000);
         return () => clearInterval(interval);
     }, []);
 
-    const drawFalloutBar = (percent) => `[${'█'.repeat(Math.round(percent / 10)).padEnd(10, '-')} ]`;
-
     return (
         <div className={`dashboard-panel weather-module ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+
+            {/* Themed Headers */}
             {theme !== 'material' && (
                 <h2>
-                    {theme === '90s' ? 'Minesweeper' :
-                        theme === 'cyberpunk' ? 'ATMOS_SCAN // KREMENCHUK_SECTOR' :
-                            theme === 'fallout' ? 'ROBCO_ENV // LOCAL_CLIMATOLOGY' :
-                                'METEO_DATA // KREMENCHUK'}
+                    {theme === '90s' ? 'Weather Properties' :
+                        theme === 'cyberpunk' ? 'ATMOS_SCAN // METEO' :
+                            theme === 'fallout' ? 'ROBCO_ENV // SENSOR' :
+                                theme === 'y2k' ? 'METEO_LOG // RADAR' :
+                                    'LOCAL_ATMOSPHERE'}
                 </h2>
             )}
 
+            {theme === 'material' && <h2 style={{ fontSize: '1.4rem', fontWeight: '500', marginBottom: '20px' }}>At-a-Glance</h2>}
+
+            {/* Default Status Text */}
+            {theme !== '90s' && theme !== 'material' && theme !== 'fallout' && theme !== 'y2k' && (
+                <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>
+            )}
+
+            {/* --- 90s WINDOWS PROPERTIES LAYOUT --- */}
             {theme === '90s' ? (
-                /* ... Keep existing 90s code ... */
-                <div className="win95-minesweeper-body">
-                    <div className="ms-scoreboard">
-                        <div className="ms-digital">{weather ? String(Math.round(weather.temp)).padStart(3, '0') : '000'}</div>
-                        <button className="ms-face" onClick={fetchWeather}>😎</button>
-                        <div className="ms-digital">{weather ? String(weather.humidity).padStart(3, '0') : '000'}</div>
-                    </div>
-                    <div className="ms-stats-area">
-                        {weather ? (<><div>Wind: {weather.wind} km/h</div><div>Pressure: {weather.pressure}</div></>) : (<div>Loading...</div>)}
-                    </div>
-                </div>
-            ) : theme === 'cyberpunk' ? (
-                /* ... Keep existing Cyberpunk code ... */
-                <div className="cp-atmos-container">
-                    {weather ? (
-                        <div className="cp-atmos-grid">
-                            <div className="cp-atmos-block"><span className="cp-atmos-label">TEMP</span><span className="cp-atmos-val">{weather.temp}°C</span></div>
-                            <div className="cp-atmos-block"><span className="cp-atmos-label">HUMIDITY</span><span className="cp-atmos-val">{weather.humidity}%</span></div>
-                            <div className="cp-atmos-block"><span className="cp-atmos-label">WIND</span><span className="cp-atmos-val">{weather.wind}</span></div>
+                <div style={{ padding: '4px', color: '#000' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+
+                        {/* Authentic 90s Pixel Icon Box */}
+                        <div style={{
+                            width: '48px', height: '48px', marginRight: '15px',
+                            background: '#008080',
+                            border: '2px solid', borderColor: '#808080 #ffffff #ffffff #808080',
+                            display: 'flex', justifyContent: 'center', alignItems: 'center',
+                            boxShadow: 'inset 1px 1px #000, inset -1px -1px #dfdfdf'
+                        }}>
+                            <span style={{ fontSize: '24px', textShadow: '1px 1px 0 #000' }}>
+                                {weather ? (weather.precip_chance > 50 ? '🌧' : weather.condition?.toLowerCase().includes('cloud') ? '☁' : '☀') : '⌛'}
+                            </span>
                         </div>
-                    ) : (<div style={{ opacity: 0.5 }}>&gt; SENSORS OFFLINE...</div>)}
-                </div>
-            ) : theme === 'fallout' ? (
-                /* ... Keep existing Fallout code ... */
-                <div className="fo-weather-container">
-                    {weather ? (
-                        <div className="fo-stats-container">
-                            <div className="fo-stat-line"><span className="fo-label">EXT_TEMP:</span><span>{weather.temp} DEG_C</span></div>
-                            <div className="fo-stat-line"><span className="fo-label">RAD_STORMS:</span><span>{drawFalloutBar(weather.precip_chance)}</span></div>
+
+                        <div>
+                            <div style={{ fontSize: '32px', fontWeight: 'bold', lineHeight: '1', letterSpacing: '-1px' }}>
+                                {weather ? weather.temp : '--'}°C
+                            </div>
+                            <div style={{ fontSize: '12px', marginTop: '2px' }}>
+                                {weather ? weather.condition : 'Updating...'}
+                            </div>
                         </div>
-                    ) : (<div style={{ opacity: 0.5 }}>&gt; RECALIBRATING...</div>)}
-                </div>
-            ) : theme === 'material' ? (
-                /* Material You Weather Layout */
-                <div className="md-weather-container">
-                    {weather ? (
-                        <>
-                            <div className="md-weather-main">
-                                <span className="md-weather-icon">{weather.precip_chance > 50 ? '🌧️' : weather.temp > 20 ? '☀️' : '☁️'}</span>
-                                <div className="md-weather-text">
-                                    <div className="md-temp">{weather.temp}°</div>
-                                    <div className="md-feels-like">Feels like {weather.feels_like}°</div>
-                                </div>
-                            </div>
-                            <div className="md-weather-details">
-                                <div className="md-detail-pill">💧 {weather.humidity}%</div>
-                                <div className="md-detail-pill">💨 {weather.wind} km/h</div>
-                                <div className="md-detail-pill">☔ {weather.precip_chance}%</div>
-                            </div>
-                        </>
-                    ) : (
-                        <div style={{ opacity: 0.5, padding: '20px' }}>Syncing weather...</div>
-                    )}
+                    </div>
+
+                    {/* Sunken Data List */}
+                    <div style={{
+                        background: '#fff',
+                        border: '2px solid', borderColor: '#808080 #ffffff #ffffff #808080',
+                        padding: '10px',
+                        boxShadow: 'inset 1px 1px #000'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '12px' }}>
+                            <span>Humidity:</span>
+                            <span>{weather ? weather.humidity : '--'}%</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '12px' }}>
+                            <span>Wind Speed:</span>
+                            <span>{weather ? weather.wind : '--'} km/h</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                            <span>Precipitation:</span>
+                            <span>{weather ? weather.precip_chance : '--'}%</span>
+                        </div>
+                    </div>
                 </div>
             ) : theme === 'y2k' ? (
+                /* --- Y2K 2ADVANCED LAYOUT --- */
                 <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #2a4b66', paddingBottom: '5px', marginBottom: '15px' }}>
                         <span style={{ color: 'var(--accent)' }}>STATUS:</span>
@@ -132,9 +137,49 @@ export default function Weather() {
                         </div>
                     </div>
                 </div>
+            ) : theme === 'cyberpunk' ? (
+                /* --- CYBERPUNK LAYOUT --- */
+                <div className="cp-weather-grid">
+                    <div className="cp-weather-main">
+                        <span className="cp-temp">{weather ? weather.temp : '--'}°</span>
+                        <span className="cp-cond">{weather ? weather.condition : 'SCANNING...'}</span>
+                    </div>
+                    <div className="cp-weather-details">
+                        <div><span className="cp-label">HUMIDITY</span><span className="cp-val">{weather ? weather.humidity : '--'}%</span></div>
+                        <div><span className="cp-label">WIND</span><span className="cp-val">{weather ? weather.wind : '--'}KPH</span></div>
+                    </div>
+                </div>
+            ) : theme === 'fallout' ? (
+                /* --- FALLOUT LAYOUT --- */
+                <div className="fo-weather-block">
+                    <div style={{ marginBottom: '10px' }}>&gt; EXTERIOR_TEMP: {weather ? weather.temp : '--'}°C</div>
+                    <div style={{ marginBottom: '10px' }}>&gt; ATMOS_COND: {weather ? weather.condition?.toUpperCase() : 'UNKNOWN'}</div>
+                    <div style={{ display: 'flex', gap: '20px' }}>
+                        <div>RADS/HUMIDITY: {weather ? weather.humidity : '--'}%</div>
+                        <div>WIND_VELOCITY: {weather ? weather.wind : '--'} KM/H</div>
+                    </div>
+                </div>
+            ) : theme === 'material' ? (
+                /* --- MATERIAL YOU LAYOUT --- */
+                <div className="md-weather-card">
+                    <div className="md-weather-main">
+                        <div className="md-weather-icon">{weather ? (weather.precip_chance > 50 ? '🌧️' : weather.condition?.toLowerCase().includes('cloud') ? '☁️' : '☀️') : '⏳'}</div>
+                        <div className="md-weather-temp">{weather ? weather.temp : '--'}°</div>
+                    </div>
+                    <div className="md-weather-desc">{weather ? weather.condition : 'Updating local weather...'}</div>
+                    <div className="md-weather-pills">
+                        <div className="md-pill">💧 {weather ? weather.humidity : '--'}%</div>
+                        <div className="md-pill">💨 {weather ? weather.wind : '--'} km/h</div>
+                    </div>
+                </div>
             ) : (
-                /* Fallback */
-                <div>{weather ? `Temp: ${weather.temp}°C` : status}</div>
+                /* --- DEFAULT / TERMINAL LAYOUT --- */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <div>&gt; TEMP: {weather ? weather.temp : '--'}°C</div>
+                    <div>&gt; COND: {weather ? weather.condition : 'UNKNOWN'}</div>
+                    <div>&gt; HUMIDITY: {weather ? weather.humidity : '--'}%</div>
+                    <div>&gt; WIND: {weather ? weather.wind : '--'} KPH</div>
+                </div>
             )}
         </div>
     );

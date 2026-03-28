@@ -14,13 +14,14 @@ export default function SysTime() {
         <div className={`dashboard-panel sys-time ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel md-panel-accent' : ''}`}>
             {theme !== 'material' && (
                 <h2>
-                    {theme === '90s' ? 'Date/Time Properties' : 
-                     theme === 'cyberpunk' ? 'LOCAL_CHRONO // SYNC' : 
-                     theme === 'fallout' ? 'ROBCO_OS // SYS_CLOCK' :
-                     'SYS_TIME // LOCAL'}
+                    {theme === '90s' ? 'Date/Time Properties' :
+                        theme === 'cyberpunk' ? 'LOCAL_CHRONO // SYNC' :
+                            theme === 'fallout' ? 'ROBCO_OS // SYS_CLOCK' :
+                                theme === 'cli' ? 'SYSTEM_CLOCK' :
+                                    'SYS_TIME // LOCAL'}
                 </h2>
             )}
-            
+
             {theme === '90s' ? (
                 <div className="win95-dialog-body">
                     <fieldset className="win95-groupbox">
@@ -70,6 +71,33 @@ export default function SysTime() {
                     </div>
                     <div style={{ fontSize: '9px', color: '#2a4b66', marginTop: '10px', fontFamily: 'monospace' }}>
                         UNIX_TS: {Math.floor(time.getTime() / 1000)}
+                    </div>
+                </div>
+            ) : theme === 'cli' ? (
+                /* --- CLI / TUI LAYOUT --- */
+                <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px' }}>
+                    <div style={{ color: 'var(--accent)', marginBottom: '12px' }}>
+                        C:\&gt; chrony stat
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #555', paddingBottom: '6px', marginBottom: '8px' }}>
+                        <span style={{ color: '#888' }}>LOCAL_DATE</span>
+                        <span style={{ color: '#fff' }}>{time.toLocaleDateString('sv-SE')}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #555', paddingBottom: '6px', marginBottom: '8px', alignItems: 'center' }}>
+                        <span style={{ color: '#888' }}>LOCAL_TIME</span>
+                        <span style={{ color: '#fff', fontSize: '18px' }}>{time.toLocaleTimeString('en-US', { hour12: false })}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #555', paddingBottom: '6px', marginBottom: '8px' }}>
+                        <span style={{ color: '#888' }}>UNIX_EPOCH</span>
+                        <span style={{ color: '#ffff55' }}>{Math.floor(time.getTime() / 1000)}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '4px' }}>
+                        <span style={{ color: '#888' }}>NTP_STATUS</span>
+                        <span style={{ color: '#00ff00' }}>[ OK ]</span>
                     </div>
                 </div>
             ) : (
