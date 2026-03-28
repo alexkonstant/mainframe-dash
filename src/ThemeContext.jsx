@@ -5,11 +5,13 @@ export const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'default');
 
-    // Added 'cli' to the master rotation array
     const themes = ['default', '90s', 'cyberpunk', 'fallout', 'material', 'y2k', 'cli'];
 
     useEffect(() => {
-        document.body.className = `theme-${theme}`;
+        // Reverting back to the exact class names your old CSS expects
+        document.body.className = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+
         localStorage.setItem('theme', theme);
     }, [theme]);
 

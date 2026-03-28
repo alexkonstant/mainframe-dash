@@ -1992,7 +1992,7 @@ body {
 /* =========================================
    CLI / TUI (TEXT USER INTERFACE) THEME
    ========================================= */
-.theme-cli {
+.cli {
   --bg: #000000;
   --panel-bg: #000000;
   --text: #c0c0c0; /* Classic DOS Light Grey */
@@ -2006,23 +2006,22 @@ body {
 }
 
 /* Base Terminal Window */
-.theme-cli .dashboard-panel {
+.cli .dashboard-panel {
   background-color: var(--panel-bg);
-  border: 3px double #aaaaaa; /* Simulates the ╔════╗ ASCII border */
+  border: 3px double #aaaaaa;
   border-radius: 0;
-  /* Simulates the hard block-character drop shadow underneath TUI windows */
   box-shadow: 12px 12px 0px rgba(85, 85, 85, 0.4);
   padding: 20px 15px 15px 15px;
   position: relative;
   margin-bottom: 25px;
 }
 
-/* Emulate TUI Window Titles cutting through the top border */
-.theme-cli .dashboard-panel h2 {
+/* Emulate TUI Window Titles */
+.cli .dashboard-panel h2 {
   position: absolute;
   top: -10px;
   left: 50%;
-  transform: translateX(-50%); /* Centers the title perfectly */
+  transform: translateX(-50%);
   background: var(--panel-bg);
   color: #ffffff;
   padding: 0 10px;
@@ -2035,7 +2034,7 @@ body {
 }
 
 /* Global CLI Buttons */
-.theme-cli button {
+.cli button {
   background: transparent;
   color: var(--accent);
   border: none;
@@ -2046,18 +2045,18 @@ body {
   text-transform: uppercase;
 }
 
-.theme-cli button:hover {
+.cli button:hover {
   background: var(--accent);
   color: var(--bg);
 }
 
 /* Overriding links for the CLI aesthetic */
-.theme-cli a {
-  color: #ffff55; /* Classic DOS Yellow */
+.cli a {
+  color: #ffff55;
   text-decoration: none;
 }
 
-.theme-cli a:hover {
+.cli a:hover {
   background: #ffff55;
   color: #000;
 }
