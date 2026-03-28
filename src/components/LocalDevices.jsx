@@ -18,8 +18,8 @@ export default function LocalDevices({ devices = [] }) {
             style={theme === '90s' ? { padding: 0, background: '#c0c0c0', border: '2px solid', borderColor: '#ffffff #000000 #000000 #ffffff' } : {}}
         >
 
-            {/* Header Area (Hidden for 90s, handled inside the theme block below) */}
-            {theme !== '90s' && (
+            {/* Header Area (Hidden for 90s and CLI) */}
+            {theme !== '90s' && theme !== 'cli' && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: theme === 'material' ? '20px' : '10px' }}>
                     <h2 style={{ flexGrow: 1, marginRight: '15px', marginBottom: theme === 'material' ? '0' : '' }}>
                         {theme === 'cyberpunk' ? 'NET_SCAN // LOCAL_NODES' :
@@ -40,14 +40,55 @@ export default function LocalDevices({ devices = [] }) {
             )}
 
             {/* Default Status Indicators */}
-            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== '90s' && (
+            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== '90s' && theme !== 'cli' && (
                 <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>
                     {isScanning ? '> Sweeping local network...' : `> Tracking ${devices.length} active nodes.`}
                 </div>
             )}
 
-            {/* --- 90s WINDOWS LAYOUT --- */}
-            {theme === '90s' ? (
+            {/* --- CLI / TUI TERMINAL LAYOUT --- */}
+            {theme === 'cli' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', fontFamily: 'var(--font)' }}>
+
+                    {/* Terminal Prompt & Execute Button */}
+                    <div style={{ color: 'var(--accent)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>root@mainframe:~# arp-scan --localnet</span>
+                        <button onClick={triggerVisualScan} disabled={isScanning} style={{ color: '#ffff55', cursor: isScanning ? 'wait' : 'pointer', background: 'transparent', border: 'none', padding: 0, fontSize: '14px', fontWeight: 'bold' }}>
+                            {isScanning ? '[ SWEEPING... ]' : '[ EXECUTE ]'}
+                        </button>
+                    </div>
+
+                    {/* Table Headers */}
+                    <div style={{ display: 'flex', borderBottom: '1px dashed #555', paddingBottom: '4px', marginBottom: '8px', color: '#888', fontSize: '12px' }}>
+                        <span style={{ width: '110px' }}>IP_ADDRESS</span>
+                        <span style={{ width: '140px' }}>MAC_ADDRESS</span>
+                        <span style={{ flex: 1 }}>HOSTNAME</span>
+                    </div>
+
+                    {/* Node List */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '250px', overflowY: 'auto', paddingRight: '5px' }}>
+                        {devices && devices.length > 0 ? devices.map((dev, i) => (
+                            <div key={i} style={{ display: 'flex', color: '#c0c0c0', fontSize: '13px', alignItems: 'center' }}>
+                                <span style={{ width: '110px', color: '#00ff00' }}>{dev.ip}</span>
+                                <span style={{ width: '140px', color: '#ffff55' }}>{dev.mac || 'UNKNOWN'}</span>
+                                <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {dev.name ? dev.name.toUpperCase() : 'UNKNOWN_HOST'}
+                                </span>
+                            </div>
+                        )) : (
+                            <div style={{ color: '#555', fontStyle: 'italic', marginTop: '5px' }}>
+                                {isScanning ? 'EOF: Awaiting ARP replies...' : 'EOF: No local nodes detected.'}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Footer Summary */}
+                    <div style={{ color: '#888', fontSize: '12px', marginTop: '12px', borderTop: '1px dashed #555', paddingTop: '6px' }}>
+                        &gt; {devices.length} hosts responded to ARP requests
+                    </div>
+                </div>
+            ) : theme === '90s' ? (
+                /* --- 90s WINDOWS LAYOUT --- */
                 <div style={{ display: 'flex', flexDirection: 'column', padding: '2px' }}>
 
                     {/* Classic Navy Blue Title Bar */}

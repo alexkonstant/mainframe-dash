@@ -2,141 +2,161 @@ import { useState, useEffect, useContext } from 'react';
 import { ThemeContext } from '../ThemeContext';
 
 export default function AgendaSync() {
-    const [events, setEvents] = useState([]);
-    const [status, setStatus] = useState("> Synchronizing schedule...");
-    const [currentTime, setCurrentTime] = useState(new Date());
+    const [agenda, setAgenda] = useState([]);
+    const [status, setStatus] = useState("> Syncing calendar...");
     const { theme } = useContext(ThemeContext);
 
     useEffect(() => {
-        const fetchCalendar = () => {
-            fetch('/api/calendar')
+        const fetchAgenda = () => {
+            fetch('/api/agenda')
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        setEvents(data.events);
+                        setAgenda(data.agenda);
                         setStatus("> Schedule synchronized.");
-                    } else if (data.message === "ERR_NO_ICS_LINK") {
-                        setStatus("> ERR_MISSING_ICS_URL");
                     }
                 })
                 .catch(() => setStatus("> ERR_CALENDAR_OFFLINE"));
         };
 
-        fetchCalendar();
-        const fetchInterval = setInterval(fetchCalendar, 900000);
-        const timeInterval = setInterval(() => setCurrentTime(new Date()), 60000);
-
-        return () => {
-            clearInterval(fetchInterval);
-            clearInterval(timeInterval);
-        };
+        fetchAgenda();
+        const interval = setInterval(fetchAgenda, 600000); // 10 mins
+        return () => clearInterval(interval);
     }, []);
-
-    const uniqueEvents = events.filter((event, index, self) =>
-        index === self.findIndex((e) => (
-            e.display === event.display && e.summary === event.summary
-        ))
-    );
-
-    const renderEvent = (e, idx) => {
-        const yyyy = currentTime.getFullYear();
-        const mm = String(currentTime.getMonth() + 1).padStart(2, '0');
-        const dd = String(currentTime.getDate()).padStart(2, '0');
-        const hh = String(currentTime.getHours()).padStart(2, '0');
-        const min = String(currentTime.getMinutes()).padStart(2, '0');
-
-        const todayStr = `${yyyy}${mm}${dd}`;
-        const nowStr = `${todayStr}${hh}${min}00`;
-
-        const isToday = e.sort.startsWith(todayStr);
-        const isAllDay = e.display.includes("ALL DAY");
-        const isPast = e.sort < nowStr && !isAllDay;
-
-        if (theme === '90s') { /* ... 90s ... */
-            return <div key={idx} className="win95-list-row" style={{ opacity: isPast ? 0.5 : 1, textDecoration: isPast ? 'line-through' : 'none' }}><div className="col-time">{e.display}</div><div className="col-event">{e.summary}</div></div>;
-        }
-
-        if (theme === 'cyberpunk') { /* ... CP ... */
-            return <div key={idx} className={`cp-agenda-item ${isPast ? 'cp-agenda-past' : ''}`}><div className="cp-agenda-time">{e.display}</div><div className="cp-agenda-desc">{e.summary}</div><div className="cp-agenda-status">{isPast ? '[ COMPLETED ]' : '[ PENDING ]'}</div></div>;
-        }
-
-        if (theme === 'fallout') { /* ... FO ... */
-            return <div key={idx} className={`fo-quest-item ${isPast ? 'fo-quest-past' : ''}`}><div className="fo-quest-box">{isPast ? '[X]' : '[ ]'}</div><div className="fo-quest-details"><span className="fo-quest-time">{e.display}</span><span className="fo-quest-title">{e.summary.toUpperCase()}</span></div></div>;
-        }
-
-        if (theme === 'y2k') {
-            return (
-                <div key={idx} style={{
-                    display: 'flex',
-                    padding: '8px 5px',
-                    background: idx % 2 === 0 ? 'rgba(0,0,0,0.3)' : 'rgba(123,188,213,0.05)',
-                    borderLeft: `2px solid var(--accent)`,
-                    marginBottom: '4px',
-                    opacity: isPast ? 0.5 : 1
-                }}>
-                    <div style={{ flex: 1, overflow: 'hidden' }}>
-                        <div style={{ color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', fontWeight: 'bold', textDecoration: isPast ? 'line-through' : 'none' }}>
-                            {e.summary}
-                        </div>
-                        <div style={{ fontSize: '9px', color: 'var(--accent)', marginTop: '4px' }}>
-                            {e.display}
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        if (theme === 'material') {
-            /* Material You Event Card */
-            return (
-                <div key={idx} className={`md-agenda-card ${isPast ? 'md-agenda-past' : ''}`}>
-                    <div className="md-agenda-time">{e.display}</div>
-                    <div className="md-agenda-title">{e.summary}</div>
-                </div>
-            );
-        }
-
-        // Terminal Rendering
-        let style = { marginBottom: '5px' };
-        let prefix = ">";
-        if (isPast && isToday) { style.textDecoration = 'line-through'; style.opacity = 0.4; }
-        else if (isToday) { style.color = 'var(--accent)'; style.fontWeight = 'bold'; style.textShadow = '0 0 5px var(--accent)'; prefix = ">>"; }
-        return <div key={idx} style={style}>{prefix} [{e.display}] {e.summary}</div>;
-    };
 
     return (
         <div className={`dashboard-panel agenda-sync ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
-            {theme !== 'material' && (
+
+            {/* Themed Headers */}
+            {theme !== 'material' && theme !== 'cli' && (
                 <h2>
-                    {theme === '90s' ? 'C:\\Windows\\Schedule' :
-                        theme === 'cyberpunk' ? 'OP_LOG // UPCOMING_TASKS' :
-                            theme === 'fallout' ? 'PIP-OS // QUEST_LOG' :
-                                theme === 'y2k' ? 'DATABANK // TASK_QUEUE' :
+                    {theme === '90s' ? 'Task Scheduler' :
+                        theme === 'cyberpunk' ? 'PERSONAL_LOG // AGENDA' :
+                            theme === 'fallout' ? 'ROBCO_OS // HOLOTAPE_LOG' :
+                                theme === 'y2k' ? 'SYS_CRON // EVENT_LOG' :
                                     'AGENDA // SYNC'}
                 </h2>
             )}
 
-            {theme === 'material' && <h2 style={{ fontSize: '1.4rem', fontWeight: '500', marginBottom: '20px' }}>Upcoming Schedule</h2>}
+            {theme === 'material' && <h2 style={{ fontSize: '1.4rem', fontWeight: '500', marginBottom: '20px' }}>Upcoming</h2>}
 
+            {/* Default Status Text */}
+            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== 'cli' && theme !== '90s' && (
+                <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>
+            )}
+
+            {/* Y2K Status Header Override */}
             {theme === 'y2k' && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--accent)', paddingBottom: '5px', marginBottom: '10px', fontSize: '10px' }}>
-                    <span>EVENT_ID</span>
-                    <span>T-MINUS</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #2a4b66', paddingBottom: '4px', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '9px', color: 'var(--accent)', letterSpacing: '2px' }}>EVENT_INDEX</span>
+                    <span style={{ fontSize: '9px', opacity: 0.7 }}>[ {agenda.length} LOGS ]</span>
                 </div>
             )}
 
-            {theme !== '90s' && theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>}
-            <div className={theme === '90s' ? 'win95-explorer-body' : theme === 'material' ? 'md-agenda-list' : ''}>
-                {uniqueEvents.length > 0 ? (
-                    <div style={{ padding: 0, margin: 0, lineHeight: '1.6' }}>
-                        {uniqueEvents.map((e, idx) => renderEvent(e, idx))}
+            {/* --- CLI / TUI LAYOUT --- */}
+            {theme === 'cli' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', fontFamily: 'var(--font)' }}>
+                    <div style={{ color: 'var(--accent)', marginBottom: '12px' }}>
+                        root@mainframe:~# cat /var/spool/cron/agenda.log
                     </div>
-                ) : (
-                    <div style={{ opacity: 0.5, padding: theme === '90s' ? '10px' : '0' }}>
-                        {status === "> ERR_MISSING_ICS_URL" ? "Insert Google Calendar link." : theme === 'material' ? "Your schedule is clear." : "No active objectives."}
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <div style={{ display: 'flex', borderBottom: '1px dashed #555', paddingBottom: '4px', marginBottom: '4px', color: '#888', fontSize: '12px' }}>
+                            <span style={{ width: '110px' }}>TIMESTAMP</span>
+                            <span style={{ flex: 1 }}>PROCESS_DESCRIPTION</span>
+                        </div>
+
+                        {agenda && agenda.length > 0 ? agenda.map((item, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', color: '#c0c0c0', marginBottom: '6px' }}>
+                                <div style={{ width: '110px', display: 'flex', flexDirection: 'column' }}>
+                                    <span style={{
+                                        color: item.day === 'Today' ? '#00ff00' : '#ffff55',
+                                        fontWeight: 'bold',
+                                        fontSize: '13px'
+                                    }}>
+                                        [{item.day === 'Today' ? 'TODAY' : item.day === 'Tomorrow' ? 'TMRW' : item.day.toUpperCase()}]
+                                    </span>
+                                    {item.time && (
+                                        <span style={{ color: '#888', fontSize: '12px', marginLeft: '4px' }}>
+                                            {item.time}
+                                        </span>
+                                    )}
+                                </div>
+                                <span style={{ flex: 1, paddingLeft: '10px', lineHeight: '1.4' }}>
+                                    {item.title.toUpperCase()}
+                                </span>
+                            </div>
+                        )) : (
+                            <div style={{ color: '#555', fontStyle: 'italic', marginTop: '10px' }}>
+                                EOF: No scheduled tasks found.
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                </div>
+            ) : agenda && agenda.length > 0 ? (
+                <div className={theme === '90s' ? 'win95-listbox' : theme === 'cyberpunk' ? 'cp-agenda-list' : theme === 'fallout' ? 'fo-agenda-list' : theme === 'material' ? 'md-agenda-list' : ''} style={theme !== '90s' && theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' ? { display: 'flex', flexDirection: 'column', gap: '15px' } : {}}>
+                    {agenda.map((item, i) => (
+                        theme === '90s' ? (
+                            <div key={i} style={{ padding: '4px', borderBottom: '1px dotted #c0c0c0', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                <img src="https://win98icons.alexmeub.com/icons/png/notepad-1.png" alt="task" style={{ width: '16px', height: '16px', marginTop: '2px' }} />
+                                <div>
+                                    <div style={{ color: '#000', fontSize: '13px', fontFamily: 'Arial, sans-serif' }}>{item.title}</div>
+                                    <div style={{ color: '#808080', fontSize: '11px', fontFamily: 'Arial, sans-serif' }}>
+                                        {item.day}{item.time ? `, ${item.time}` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : theme === 'y2k' ? (
+                            <div key={i} style={{
+                                background: 'rgba(0, 0, 0, 0.4)', border: '1px solid #2a4b66', padding: '8px',
+                                marginBottom: '8px', position: 'relative'
+                            }}>
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '2px', height: '100%', background: item.day === 'Today' ? '#ff0055' : 'var(--accent)' }}></div>
+                                <div style={{ fontSize: '9px', color: item.day === 'Today' ? '#ff0055' : 'var(--accent)', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>{item.day.toUpperCase()} {item.time && `// ${item.time}`}</span>
+                                    <span>ID_0{i + 1}</span>
+                                </div>
+                                <div style={{ color: '#fff', fontSize: '10px', lineHeight: '1.4', fontWeight: 'bold' }}>
+                                    {item.title.toUpperCase()}
+                                </div>
+                            </div>
+                        ) : theme === 'cyberpunk' ? (
+                            <div key={i} className="cp-agenda-item">
+                                <div className="cp-agenda-date">
+                                    {item.day === 'Today' ? 'URGENT // TODAY' : item.day.toUpperCase()}
+                                    {item.time && <span className="cp-agenda-time"> // {item.time}</span>}
+                                </div>
+                                <div className="cp-agenda-title">{item.title}</div>
+                            </div>
+                        ) : theme === 'fallout' ? (
+                            <div key={i} className="fo-agenda-item">
+                                <div>&gt; {item.day === 'Today' ? 'TODAY' : item.day === 'Tomorrow' ? 'TOMORROW' : item.day.toUpperCase()}</div>
+                                <div style={{ marginLeft: '15px' }}>{item.time && `[${item.time}] `}{item.title.toUpperCase()}</div>
+                            </div>
+                        ) : theme === 'material' ? (
+                            <div key={i} className="md-agenda-card">
+                                <div className="md-agenda-date">
+                                    <span style={{ fontWeight: item.day === 'Today' ? 'bold' : 'normal', color: item.day === 'Today' ? 'var(--accent)' : 'inherit' }}>
+                                        {item.day}
+                                    </span>
+                                    {item.time && <span className="md-agenda-time">{item.time}</span>}
+                                </div>
+                                <div className="md-agenda-title">{item.title}</div>
+                            </div>
+                        ) : (
+                            <div key={i} style={{ borderLeft: '2px solid var(--accent)', paddingLeft: '10px' }}>
+                                <div style={{ fontWeight: 'bold', color: 'var(--accent)' }}>
+                                    {item.day === 'Today' ? 'TODAY' : item.day === 'Tomorrow' ? 'TOMORROW' : item.day}
+                                    {item.time && <span style={{ opacity: 0.7, fontWeight: 'normal' }}> @ {item.time}</span>}
+                                </div>
+                                <div>{item.title}</div>
+                            </div>
+                        )
+                    ))}
+                </div>
+            ) : (
+                <div style={{ opacity: 0.5 }}>{theme === '90s' ? 'No tasks found.' : theme === 'material' ? 'No events scheduled.' : '> NO EVENTS DETECTED'}</div>
+            )}
         </div>
     );
 }
