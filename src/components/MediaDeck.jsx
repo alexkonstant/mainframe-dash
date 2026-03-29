@@ -49,12 +49,19 @@ export default function MediaDeck({ audioData }) {
     formData.append('file', file);
 
     try {
-      await fetch('/api/media/upload', { method: 'POST', body: formData });
+      const res = await fetch('/api/media/upload', { method: 'POST', body: formData });
+
+      // Force an error if the Python script crashes so it hits the catch block
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
       await fetchPlaylist(); // Refresh the visible list immediately
-    } catch (err) { console.error("Upload failed", err); }
+    } catch (err) {
+      console.error("Upload failed", err);
+      alert("Upload failed. Check server logs!"); // Optional UI feedback
+    }
 
     setIsUploading(false);
-    if (fileInputRef.current) fileInputRef.current.value = ''; // Reset the hidden input
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   // Themed Button Style Helper
