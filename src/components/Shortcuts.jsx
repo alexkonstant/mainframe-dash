@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext } from 'react';
 import { ThemeContext } from '../ThemeContext';
 
-const getIcon = (name, url) => {
-    const lower = name.toLowerCase();
+const getIcon = (name = '', url) => {
+    const lower = (name || '').toLowerCase();
     const base = 'https://win98icons.alexmeub.com/icons/png/';
     if (lower.includes('youtube')) return base + 'multimedia-4.png';
     if (lower.includes('wiki')) return base + 'book_open-1.png';
@@ -40,7 +40,7 @@ export default function Shortcuts() {
     const syncToHardware = async (updatedLinks) => {
         setStatus("> Writing to RAM...");
         try {
-            const res = await fetch('/api/shortcuts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedLinks) });
+            await fetch('/api/shortcuts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedLinks) });
             setStatus("> Committing to SD Card...");
             await fetch('/api/commit', { method: 'POST' });
             setLinks(updatedLinks);
@@ -127,7 +127,7 @@ export default function Shortcuts() {
                                 )}
                                 <span style={{ color: 'var(--accent)', width: '35px' }}>[{String(i + 1).padStart(2, '0')}]</span>
                                 <a href={link.url} target="_blank" rel="noreferrer" style={{ color: '#ffff55', textDecoration: 'none', width: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>
-                                    {link.name.toUpperCase()}
+                                    {(link.name || 'LINK').toUpperCase()}
                                 </a>
                                 <span style={{ color: '#555', margin: '0 8px' }}>-&gt;</span>
                                 <span style={{ color: '#888', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -148,28 +148,28 @@ export default function Shortcuts() {
                                 {isEditing && <button onClick={() => handleDelete(i)} style={{ position: 'absolute', top: -5, right: -5, background: '#ff0000', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 'bold', zIndex: 10, padding: '2px 5px' }}>X</button>}
                                 <a href={link.url} target="_blank" rel="noreferrer" className="win95-icon">
                                     <img src={getIcon(link.name, link.url)} alt="icon" className="win95-crusty-image" onError={(e) => { e.target.src = 'https://win98icons.alexmeub.com/icons/png/directory_closed-4.png' }} />
-                                    <div className="icon-text">{link.name}</div>
+                                    <div className="icon-text">{link.name || 'LINK'}</div>
                                 </a>
                             </div>
                         ) : theme === 'cyberpunk' ? (
                             <div key={i} style={{ position: 'relative' }}>
                                 {isEditing && <button onClick={() => handleDelete(i)} className="cp-delete-btn">X</button>}
                                 <a href={link.url} target="_blank" rel="noreferrer" className="cp-shortcut-btn">
-                                    <span className="cp-shortcut-decor"></span>{link.name}
+                                    <span className="cp-shortcut-decor"></span>{link.name || 'LINK'}
                                 </a>
                             </div>
                         ) : theme === 'fallout' ? (
                             <div key={i} className="fo-link-row">
                                 {isEditing && <button onClick={() => handleDelete(i)} className="fo-delete-btn">[DEL]</button>}
                                 <a href={link.url} target="_blank" rel="noreferrer" className="fo-termlink-btn">
-                                    &gt; {link.name.toUpperCase()}
+                                    &gt; {(link.name || 'LINK').toUpperCase()}
                                 </a>
                             </div>
                         ) : theme === 'material' ? (
                             <div key={i} style={{ position: 'relative' }}>
                                 {isEditing && <button onClick={() => handleDelete(i)} className="md-delete-btn">✕</button>}
                                 <a href={link.url} target="_blank" rel="noreferrer" className="md-shortcut-btn">
-                                    {link.name}
+                                    {link.name || 'LINK'}
                                 </a>
                             </div>
                         ) : theme === 'y2k' ? (
@@ -186,14 +186,14 @@ export default function Shortcuts() {
                                 }}>
                                     <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: '2px', background: 'var(--accent)' }}></div>
                                     <span style={{ color: 'var(--accent)', marginRight: '8px' }}>&gt;&gt;</span>
-                                    {link.name.toUpperCase()}
+                                    {(link.name || 'LINK').toUpperCase()}
                                 </a>
                             </div>
                         ) : (
                             <div key={i} style={{ display: 'flex', gap: '5px' }}>
                                 {isEditing && <button onClick={() => handleDelete(i)} style={{ background: '#ff0055', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>X</button>}
                                 <a href={link.url} target="_blank" rel="noreferrer" style={{ flexGrow: 1, display: 'block', padding: '10px', border: '1px solid var(--accent)', color: 'var(--accent)', textDecoration: 'none', textAlign: 'center', fontWeight: 'bold', textTransform: 'uppercase' }}>
-                                    &gt; {link.name}
+                                    &gt; {link.name || 'LINK'}
                                 </a>
                             </div>
                         )

@@ -2060,3 +2060,120 @@ body {
   background: #ffff55;
   color: #000;
 }
+
+/* =========================================
+   MEDIA CENTER MODAL UTILITIES
+   ========================================= */
+
+.y2k-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+              linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 3px, 3px 100%;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.4;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-animate {
+  animation: modal-fade-in 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* CUSTOM SCROLLBARS */
+
+/* 90s Theme: Classic Windows 95 chunky scrollbar */
+[data-theme="90s"] ::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+[data-theme="90s"] ::-webkit-scrollbar-track {
+  background-color: #dfdfdf;
+  box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #ffffff;
+}
+[data-theme="90s"] ::-webkit-scrollbar-thumb {
+  background-color: #c0c0c0;
+  border: 1px solid #ffffff;
+  box-shadow: inset -1px -1px 0 #808080, 1px 1px 0 #000000;
+}
+[data-theme="90s"] ::-webkit-scrollbar-thumb:active {
+  background-color: #c0c0c0;
+}
+
+/* y2k Theme: Thin, high-tech Flash era */
+[data-theme="y2k"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+[data-theme="y2k"] ::-webkit-scrollbar-track {
+  background-color: #070c16;
+}
+[data-theme="y2k"] ::-webkit-scrollbar-thumb {
+  background-color: #070c16;
+  border: 1px solid #ff9900;
+}
+[data-theme="y2k"] ::-webkit-scrollbar-thumb:hover {
+  border-color: #00e5ff;
+}
+
+/* Cyberpunk Theme: Minimalist and aggressive */
+[data-theme="cyberpunk"] ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+[data-theme="cyberpunk"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-theme="cyberpunk"] ::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* Fallout Theme: RobCo terminal style */
+[data-theme="fallout"] ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+[data-theme="fallout"] ::-webkit-scrollbar-track {
+  background: transparent;
+  border: 1px dashed var(--accent);
+}
+[data-theme="fallout"] ::-webkit-scrollbar-thumb {
+  background: var(--accent);
+}
+
+/* Material Theme: Modern and soft */
+[data-theme="material"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+[data-theme="material"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-theme="material"] ::-webkit-scrollbar-thumb {
+  background: var(--secondary-bg);
+  border-radius: 10px;
+}
+[data-theme="material"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* CLI Theme: Raw terminal aesthetic */
+.cli ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+.cli ::-webkit-scrollbar-track {
+  background: #000000;
+}
+.cli ::-webkit-scrollbar-thumb {
+  background: #aaaaaa;
+}

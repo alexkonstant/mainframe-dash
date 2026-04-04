@@ -191,7 +191,7 @@ def upload_media():
             # Sanitize the filename without relying on external werkzeug imports
             safe_filename = file.filename.replace(" ", "_").replace("..", "")
             save_path = os.path.join(MPD_MUSIC_DIR, safe_filename)
-            
+
             # 1. Save the file
             file.save(save_path)
 
@@ -210,19 +210,91 @@ def upload_media():
             except subprocess.CalledProcessError:
                 # The file is saved and will appear in the DB shortly, 
                 # but MPD was too slow to queue it up instantly.
-                pass 
+                pass
 
             return jsonify({'status': 'success', 'filename': safe_filename})
 
     except Exception as e:
         # This will print the EXACT reason it crashed in your Raspberry Pi terminal!
-        print(f"\n[!!!] UPLOAD CRASHED: {str(e)}\n") 
+        print(f"\n[!!!] UPLOAD CRASHED: {str(e)}\n")
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/api/media/next', methods=['POST'])
 def media_next():
     subprocess.run(['mpc', 'next'])
     return jsonify({"status": "success"})
+
+@app.route('/api/media/library', methods=['GET'])
+def media_library():
+    try:
+        # Get all files in the music directory recursively
+        result = subprocess.run(['mpc', 'listall'], capture_output=True, text=True)
+        files = [line for line in result.stdout.split('\n') if line.strip()]
+        return jsonify({'status': 'success', 'library': files})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/media/playlists', methods=['GET'])
+def media_playlists():
+    try:
+        result = subprocess.run(['mpc', 'lsplaylists'], capture_output=True, text=True)
+        playlists = [line for line in result.stdout.split('\n') if line.strip()]
+        return jsonify({'status': 'success', 'playlists': playlists})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/media/playlists/load', methods=['POST'])
+def media_playlists_load():
+    try:
+        name = request.json.get('name')
+        if not name:
+            return jsonify({'status': 'error', 'message': 'No playlist name provided'}), 400
+
+        subprocess.run(['mpc', 'clear'], check=True)
+        time.sleep(1.0) # Buffer for Pi 1
+        subprocess.run(['mpc', 'load', name], check=True)
+        time.sleep(1.0) # Buffer for Pi 1
+        subprocess.run(['mpc', 'play'], check=True)
+
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/media/playlists/save', methods=['POST'])
+def media_playlists_save():
+    try:
+        name = request.json.get('name')
+        if not name:
+            return jsonify({'status': 'error', 'message': 'No playlist name provided'}), 400
+
+        # Remove existing playlist if it exists to overwrite
+        subprocess.run(['mpc', 'rm', name], check=False)
+        time.sleep(0.5)
+
+        subprocess.run(['mpc', 'save', name], check=True)
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/media/queue/add', methods=['POST'])
+def media_queue_add():
+    try:
+        filename = request.json.get('filename')
+        if not filename:
+            return jsonify({'status': 'error', 'message': 'No filename provided'}), 400
+
+        subprocess.run(['mpc', 'add', filename], check=True)
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/media/queue/clear', methods=['POST'])
+def media_queue_clear():
+    try:
+        subprocess.run(['mpc', 'clear'], check=True)
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 # --- SYSTEM HARDWARE ---
 @app.route('/api/stats')
@@ -462,6 +534,19 @@ def news():
                     news_items.append({"title": f"[{feed['tag']}] {title}", "link": link})
         except Exception: news_items.append({"title": f"[{feed['tag']}] ERR_FEED_OFFLINE", "link": "#"})
     return jsonify({"status": "success", "articles": news_items})
+
+@app.route('/api/debug/mpd')
+def debug_mpd():
+    try:
+        diag = {}
+        diag['ls_music'] = subprocess.run(['ls', '-la', MPD_MUSIC_DIR], capture_output=True, text=True).stdout
+        diag['mpc_status'] = subprocess.run(['mpc', 'status'], capture_output=True, text=True).stdout
+        diag['mpc_listall'] = subprocess.run(['mpc', 'listall'], capture_output=True, text=True).stdout
+        diag['mpd_conf'] = subprocess.run(['grep', 'music_directory', '/etc/mpd.conf'], capture_output=True, text=True).stdout
+        diag['mpd_user'] = subprocess.run(['ps', '-o', 'user', '-p', subprocess.run(['pgrep', 'mpd'], capture_output=True, text=True).stdout.strip()], capture_output=True, text=True).stdout if subprocess.run(['pgrep', 'mpd'], capture_output=True, text=True).stdout.strip() else "mpd not running"
+        return jsonify(diag)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/calendar')
 def calendar():

@@ -8,11 +8,11 @@ export default function AgendaSync() {
 
     useEffect(() => {
         const fetchAgenda = () => {
-            fetch('/api/agenda')
+            fetch('/api/calendar')
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        setAgenda(data.agenda);
+                        setAgenda(data.events || []);
                         setStatus("> Schedule synchronized.");
                     }
                 })
@@ -70,20 +70,15 @@ export default function AgendaSync() {
                             <div key={i} style={{ display: 'flex', alignItems: 'flex-start', color: '#c0c0c0', marginBottom: '6px' }}>
                                 <div style={{ width: '110px', display: 'flex', flexDirection: 'column' }}>
                                     <span style={{
-                                        color: item.day === 'Today' ? '#00ff00' : '#ffff55',
+                                        color: '#ffff55',
                                         fontWeight: 'bold',
                                         fontSize: '13px'
                                     }}>
-                                        [{item.day === 'Today' ? 'TODAY' : item.day === 'Tomorrow' ? 'TMRW' : item.day.toUpperCase()}]
+                                        [{item.display || '??/??'}]
                                     </span>
-                                    {item.time && (
-                                        <span style={{ color: '#888', fontSize: '12px', marginLeft: '4px' }}>
-                                            {item.time}
-                                        </span>
-                                    )}
                                 </div>
                                 <span style={{ flex: 1, paddingLeft: '10px', lineHeight: '1.4' }}>
-                                    {item.title.toUpperCase()}
+                                    {(item.summary || 'UNKNOWN_EVENT').toUpperCase()}
                                 </span>
                             </div>
                         )) : (
@@ -100,9 +95,9 @@ export default function AgendaSync() {
                             <div key={i} style={{ padding: '4px', borderBottom: '1px dotted #c0c0c0', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                                 <img src="https://win98icons.alexmeub.com/icons/png/notepad-1.png" alt="task" style={{ width: '16px', height: '16px', marginTop: '2px' }} />
                                 <div>
-                                    <div style={{ color: '#000', fontSize: '13px', fontFamily: 'Arial, sans-serif' }}>{item.title}</div>
+                                    <div style={{ color: '#000', fontSize: '13px', fontFamily: 'Arial, sans-serif' }}>{item.summary || 'UNKNOWN_EVENT'}</div>
                                     <div style={{ color: '#808080', fontSize: '11px', fontFamily: 'Arial, sans-serif' }}>
-                                        {item.day}{item.time ? `, ${item.time}` : ''}
+                                        {item.display || '??/??'}
                                     </div>
                                 </div>
                             </div>
@@ -111,45 +106,42 @@ export default function AgendaSync() {
                                 background: 'rgba(0, 0, 0, 0.4)', border: '1px solid #2a4b66', padding: '8px',
                                 marginBottom: '8px', position: 'relative'
                             }}>
-                                <div style={{ position: 'absolute', top: 0, left: 0, width: '2px', height: '100%', background: item.day === 'Today' ? '#ff0055' : 'var(--accent)' }}></div>
-                                <div style={{ fontSize: '9px', color: item.day === 'Today' ? '#ff0055' : 'var(--accent)', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>{item.day.toUpperCase()} {item.time && `// ${item.time}`}</span>
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '2px', height: '100%', background: 'var(--accent)' }}></div>
+                                <div style={{ fontSize: '9px', color: 'var(--accent)', marginBottom: '4px', display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>{item.display?.toUpperCase() || '??/??'}</span>
                                     <span>ID_0{i + 1}</span>
                                 </div>
                                 <div style={{ color: '#fff', fontSize: '10px', lineHeight: '1.4', fontWeight: 'bold' }}>
-                                    {item.title.toUpperCase()}
+                                    {item.summary?.toUpperCase() || 'UNKNOWN_EVENT'}
                                 </div>
                             </div>
                         ) : theme === 'cyberpunk' ? (
                             <div key={i} className="cp-agenda-item">
                                 <div className="cp-agenda-date">
-                                    {item.day === 'Today' ? 'URGENT // TODAY' : item.day.toUpperCase()}
-                                    {item.time && <span className="cp-agenda-time"> // {item.time}</span>}
+                                    {item.display?.toUpperCase() || '??/??'}
                                 </div>
-                                <div className="cp-agenda-title">{item.title}</div>
+                                <div className="cp-agenda-title">{item.summary || 'UNKNOWN_EVENT'}</div>
                             </div>
                         ) : theme === 'fallout' ? (
                             <div key={i} className="fo-agenda-item">
-                                <div>&gt; {item.day === 'Today' ? 'TODAY' : item.day === 'Tomorrow' ? 'TOMORROW' : item.day.toUpperCase()}</div>
-                                <div style={{ marginLeft: '15px' }}>{item.time && `[${item.time}] `}{item.title.toUpperCase()}</div>
+                                <div>&gt; {item.display?.toUpperCase() || '??/??'}</div>
+                                <div style={{ marginLeft: '15px' }}>{item.summary?.toUpperCase() || 'UNKNOWN_EVENT'}</div>
                             </div>
                         ) : theme === 'material' ? (
                             <div key={i} className="md-agenda-card">
                                 <div className="md-agenda-date">
-                                    <span style={{ fontWeight: item.day === 'Today' ? 'bold' : 'normal', color: item.day === 'Today' ? 'var(--accent)' : 'inherit' }}>
-                                        {item.day}
+                                    <span>
+                                        {item.display || '??/??'}
                                     </span>
-                                    {item.time && <span className="md-agenda-time">{item.time}</span>}
                                 </div>
-                                <div className="md-agenda-title">{item.title}</div>
+                                <div className="md-agenda-title">{item.summary || 'UNKNOWN_EVENT'}</div>
                             </div>
                         ) : (
                             <div key={i} style={{ borderLeft: '2px solid var(--accent)', paddingLeft: '10px' }}>
                                 <div style={{ fontWeight: 'bold', color: 'var(--accent)' }}>
-                                    {item.day === 'Today' ? 'TODAY' : item.day === 'Tomorrow' ? 'TOMORROW' : item.day}
-                                    {item.time && <span style={{ opacity: 0.7, fontWeight: 'normal' }}> @ {item.time}</span>}
+                                    {item.display || '??/??'}
                                 </div>
-                                <div>{item.title}</div>
+                                <div>{item.summary || 'UNKNOWN_EVENT'}</div>
                             </div>
                         )
                     ))}
