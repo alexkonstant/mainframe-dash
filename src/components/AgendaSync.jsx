@@ -25,10 +25,14 @@ export default function AgendaSync() {
     }, []);
 
     return (
-        <div className={`dashboard-panel agenda-sync ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+        <div className={`dashboard-panel agenda-sync ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 
             {/* Themed Headers */}
-            {theme !== 'material' && theme !== 'cli' && (
+            {theme === 'system7' ? (
+                <div className="s7-titlebar">
+                    <span className="s7-title-text">Task Scheduler</span>
+                </div>
+            ) : theme !== 'material' && theme !== 'cli' && (
                 <h2>
                     {theme === '90s' ? 'Task Scheduler' :
                         theme === 'cyberpunk' ? 'PERSONAL_LOG // AGENDA' :
@@ -41,7 +45,7 @@ export default function AgendaSync() {
             {theme === 'material' && <h2 style={{ fontSize: '1.4rem', fontWeight: '500', marginBottom: '20px' }}>Upcoming</h2>}
 
             {/* Default Status Text */}
-            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== 'cli' && theme !== '90s' && (
+            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== 'cli' && theme !== '90s' && theme !== 'system7' && (
                 <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>
             )}
 
@@ -54,7 +58,24 @@ export default function AgendaSync() {
             )}
 
             {/* --- CLI / TUI LAYOUT --- */}
-            {theme === 'cli' ? (
+            {theme === 'system7' ? (
+                <div className="s7-content" style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>
+                    <div style={{ border: '1px solid #000', background: '#fff', padding: '2px' }}>
+                        <div style={{ display: 'flex', borderBottom: '1px solid #000', paddingBottom: '2px', marginBottom: '2px', fontFamily: "'Chicago', sans-serif" }}>
+                            <span style={{ width: '80px', paddingLeft: '4px' }}>Date/Time</span>
+                            <span style={{ flex: 1 }}>Event</span>
+                        </div>
+                        {agenda && agenda.length > 0 ? agenda.map((item, i) => (
+                            <div key={i} style={{ display: 'flex', borderBottom: i === agenda.length - 1 ? 'none' : '1px dotted #000', padding: '4px' }}>
+                                <span style={{ width: '80px' }}>{item.display || '??/??'}</span>
+                                <span style={{ flex: 1 }}>{item.summary || 'UNKNOWN_EVENT'}</span>
+                            </div>
+                        )) : (
+                            <div style={{ padding: '4px', fontStyle: 'italic' }}>No tasks found.</div>
+                        )}
+                    </div>
+                </div>
+            ) : theme === 'cli' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', fontFamily: 'var(--font)' }}>
                     <div style={{ color: 'var(--accent)', marginBottom: '12px' }}>
                         root@mainframe:~# cat /var/spool/cron/agenda.log

@@ -11,8 +11,12 @@ export default function SysTime() {
     }, []);
 
     return (
-        <div className={`dashboard-panel sys-time ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel md-panel-accent' : ''}`}>
-            {theme !== 'material' && (
+        <div className={`dashboard-panel sys-time ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel md-panel-accent' : theme === 'system7' ? 's7-panel' : ''}`}>
+            {theme === 'system7' ? (
+                <div className="s7-titlebar">
+                    <span className="s7-title-text">System Clock</span>
+                </div>
+            ) : theme !== 'material' && (
                 <h2>
                     {theme === '90s' ? 'Date/Time Properties' :
                         theme === 'cyberpunk' ? 'LOCAL_CHRONO // SYNC' :
@@ -22,7 +26,41 @@ export default function SysTime() {
                 </h2>
             )}
 
-            {theme === '90s' ? (
+            {theme === 'system7' ? (
+                <div className="s7-content" style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>
+                    <div style={{ border: '1px solid #000', padding: '6px', background: '#fff', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontFamily: "'Chicago', sans-serif" }}>Time</span>
+                            <span>{time.toLocaleTimeString('en-US', { hour12: false })}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontFamily: "'Chicago', sans-serif" }}>Date</span>
+                            <span>{time.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+                            <button 
+                                onMouseDown={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translate(1px, 1px)'; }}
+                                onMouseUp={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                                style={{
+                                    border: '1px solid #000', 
+                                    borderRadius: '4px', 
+                                    background: '#fff', 
+                                    color: '#000', 
+                                    boxShadow: '1px 1px 0px #000', 
+                                    fontFamily: "'Geneva', sans-serif", 
+                                    fontSize: '10px',
+                                    padding: '2px 8px', 
+                                    cursor: 'pointer',
+                                    transition: 'none'
+                                }}
+                            >
+                                Sync
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ) : theme === '90s' ? (
                 <div className="win95-dialog-body">
                     <fieldset className="win95-groupbox">
                         <legend>Current Time</legend>

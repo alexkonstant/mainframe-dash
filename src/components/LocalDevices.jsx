@@ -14,12 +14,12 @@ export default function LocalDevices({ devices = [] }) {
 
     return (
         <div
-            className={`dashboard-panel local-devices ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}
+            className={`dashboard-panel local-devices ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}
             style={theme === '90s' ? { padding: 0, background: '#c0c0c0', border: '2px solid', borderColor: '#ffffff #000000 #000000 #ffffff' } : {}}
         >
 
-            {/* Header Area (Hidden for 90s and CLI) */}
-            {theme !== '90s' && theme !== 'cli' && (
+            {/* Header Area (Hidden for 90s, CLI, and System 7) */}
+            {theme !== '90s' && theme !== 'cli' && theme !== 'system7' && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: theme === 'material' ? '20px' : '10px' }}>
                     <h2 style={{ flexGrow: 1, marginRight: '15px', marginBottom: theme === 'material' ? '0' : '' }}>
                         {theme === 'cyberpunk' ? 'NET_SCAN // LOCAL_NODES' :
@@ -40,14 +40,90 @@ export default function LocalDevices({ devices = [] }) {
             )}
 
             {/* Default Status Indicators */}
-            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== '90s' && theme !== 'cli' && (
+            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== '90s' && theme !== 'cli' && theme !== 'system7' && (
                 <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>
                     {isScanning ? '> Sweeping local network...' : `> Tracking ${devices.length} active nodes.`}
                 </div>
             )}
 
-            {/* --- CLI / TUI TERMINAL LAYOUT --- */}
-            {theme === 'cli' ? (
+            {/* --- SYSTEM 7 LAYOUT --- */}
+            {theme === 'system7' ? (
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div className="s7-titlebar">
+                        <span className="s7-title-text">Local Devices</span>
+                    </div>
+                    <div style={{ padding: '4px', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <span style={{ fontFamily: "'Chicago', sans-serif", fontSize: '12px', color: '#000' }}>Network Nodes</span>
+                            <button 
+                                onClick={triggerVisualScan} 
+                                disabled={isScanning} 
+                                style={{ 
+                                    border: '1px solid #000', 
+                                    borderRadius: '4px', 
+                                    boxShadow: isScanning ? 'none' : '1px 1px 0px #000', 
+                                    background: '#fff', 
+                                    color: '#000', 
+                                    padding: '2px 8px', 
+                                    fontFamily: "'Geneva', sans-serif", 
+                                    fontSize: '11px',
+                                    cursor: isScanning ? 'wait' : 'pointer',
+                                    transform: isScanning ? 'translate(1px, 1px)' : 'none'
+                                }}
+                                onMouseDown={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translate(1px, 1px)'; }}
+                                onMouseUp={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                            >
+                                {isScanning ? 'Scanning...' : 'Scan Now'}
+                            </button>
+                        </div>
+                        <div style={{ 
+                            border: '1px solid #000', 
+                            background: '#fff', 
+                            padding: '2px', 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            maxHeight: '250px', 
+                            overflowY: 'auto' 
+                        }}>
+                            {/* Header row for tabular data */}
+                            <div style={{ display: 'flex', borderBottom: '1px solid #000', paddingBottom: '2px', marginBottom: '2px' }}>
+                                <span style={{ fontFamily: "'Chicago', sans-serif", fontSize: '11px', color: '#000', width: '100px' }}>IP</span>
+                                <span style={{ fontFamily: "'Chicago', sans-serif", fontSize: '11px', color: '#000', flex: 1 }}>Hostname</span>
+                            </div>
+
+                            {devices && devices.length > 0 ? devices.map((dev, i) => (
+                                <div key={i} style={{ 
+                                    borderBottom: i !== devices.length - 1 ? '1px dotted #000' : 'none', 
+                                    padding: '2px',
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}>
+                                    <span style={{ 
+                                        fontFamily: "'Geneva', sans-serif", 
+                                        fontSize: '11px', 
+                                        color: '#000',
+                                        width: '100px'
+                                    }}>{dev.ip}</span>
+                                    <span style={{ 
+                                        fontFamily: "'Geneva', sans-serif", 
+                                        fontSize: '11px', 
+                                        color: '#000',
+                                        flex: 1,
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }}>{dev.name || 'Unknown'}</span>
+                                </div>
+                            )) : (
+                                <div style={{ color: '#000', fontFamily: "'Geneva', sans-serif", fontSize: '11px', padding: '4px' }}>
+                                    {isScanning ? 'Querying network...' : 'No devices found.'}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            ) : theme === 'cli' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', fontFamily: 'var(--font)' }}>
 
                     {/* Terminal Prompt & Execute Button */}

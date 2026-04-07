@@ -25,10 +25,10 @@ export default function OrbitalTracking() {
     }, []);
 
     return (
-        <div className={`dashboard-panel orbital-tracking ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`} style={{ gridColumn: '1 / -1' }}>
+        <div className={`dashboard-panel orbital-tracking ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`} style={{ gridColumn: '1 / -1' }}>
 
-            {/* Themed Header Block (Hidden for CLI) */}
-            {theme !== 'material' && theme !== 'cli' && (
+            {/* Themed Header Block (Hidden for CLI and System 7) */}
+            {theme !== 'material' && theme !== 'cli' && theme !== 'system7' && (
                 <h2>
                     {theme === '90s' ? 'Space Explorer' :
                         theme === 'cyberpunk' ? 'ORBITAL_UPLINK // ISS_TELEMETRY' :
@@ -41,13 +41,31 @@ export default function OrbitalTracking() {
             {theme === 'material' && <h2 style={{ fontSize: '1.4rem', fontWeight: '500', marginBottom: '15px' }}>Orbital Feed</h2>}
 
             {/* Default Status Text */}
-            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== 'cli' && theme !== '90s' && (
+            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== 'cli' && theme !== '90s' && theme !== 'system7' && (
                 <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>
             )}
 
             {issData ? (
-                /* --- CLI / TUI TERMINAL LAYOUT --- */
-                theme === 'cli' ? (
+                /* --- SYSTEM 7 LAYOUT --- */
+                theme === 'system7' ? (
+                    <div style={{ background: '#fff', border: '1px solid #000', boxShadow: '4px 4px 0px #000', padding: '2px', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ height: '20px', border: '1px solid #000', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', marginBottom: '5px', background: 'repeating-linear-gradient(0deg, #000, #000 1px, transparent 1px, transparent 2px)' }}>
+                            <div style={{ position: 'absolute', left: '2px', top: '2px', width: '12px', height: '12px', border: '1px solid #000', background: '#fff', cursor: 'pointer' }}></div>
+                            <span style={{ background: '#fff', padding: '0 8px', fontFamily: 'Chicago, sans-serif', fontSize: '12px', zIndex: 2 }}>Orbital Tracking</span>
+                        </div>
+                        <div style={{ border: '1px solid #000', padding: '4px', marginBottom: '5px', display: 'flex', justifyContent: 'space-between', fontFamily: 'Geneva, sans-serif', fontSize: '11px', background: '#fff', color: '#000' }}>
+                            <span>LAT: {parseFloat(issData.lat).toFixed(4)}</span>
+                            <span>LON: {parseFloat(issData.lon).toFixed(4)}</span>
+                        </div>
+                        <div style={{ border: '1px solid #000', height: '400px', background: '#fff', position: 'relative' }}>
+                            <iframe
+                                width="100%" height="100%" frameBorder="0" scrolling="no" marginHeight="0" marginWidth="0"
+                                src={`https://www.openstreetmap.org/export/embed.html?bbox=${issData.lon - 20},${issData.lat - 15},${issData.lon + 20},${issData.lat + 15}&layer=mapnik&marker=${issData.lat},${issData.lon}`}
+                                style={{ display: 'block', minHeight: '100%', filter: 'invert(100%) grayscale(100%) brightness(1.5) contrast(200%)' }}
+                            ></iframe>
+                        </div>
+                    </div>
+                ) : theme === 'cli' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', fontFamily: 'var(--font)' }}>
                         <div style={{ color: 'var(--accent)', marginBottom: '12px' }}>
                             root@mainframe:~# sat-track --id 25544 --live
@@ -141,7 +159,7 @@ export default function OrbitalTracking() {
                 )
             ) : (
                 <div style={{ opacity: 0.5 }}>
-                    {theme === '90s' ? 'Resolving host...' : theme === 'material' ? 'Locating station...' : theme === 'cli' ? 'root@mainframe:~# sat-track\n> AWAITING SAT LOCK...' : '> AWAITING TELEMETRY...'}
+                    {theme === '90s' ? 'Resolving host...' : theme === 'material' ? 'Locating station...' : theme === 'system7' ? 'Locating...' : theme === 'cli' ? 'root@mainframe:~# sat-track\n> AWAITING SAT LOCK...' : '> AWAITING TELEMETRY...'}
                 </div>
             )}
         </div>

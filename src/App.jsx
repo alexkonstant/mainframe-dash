@@ -35,6 +35,7 @@ const ThemeSelector = () => {
 
         {/* Add this new line right here: */}
         <option value="cli">CLI / TUI Terminal</option>
+        <option value="system7">System 7</option>
       </select>
     </div>
   );

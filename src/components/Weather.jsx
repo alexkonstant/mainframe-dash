@@ -46,10 +46,14 @@ export default function Weather() {
     };
 
     return (
-        <div className={`dashboard-panel weather-module ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+        <div className={`dashboard-panel weather-module ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 
             {/* Themed Headers */}
-            {theme !== 'material' && (
+            {theme === 'system7' ? (
+                <div className="s7-titlebar">
+                    <span className="s7-title-text">Weather Data</span>
+                </div>
+            ) : theme !== 'material' && (
                 <h2>
                     {theme === '90s' ? 'Weather Properties' :
                         theme === 'cyberpunk' ? 'ATMOS_SCAN // METEO' :
@@ -63,12 +67,41 @@ export default function Weather() {
             {theme === 'material' && <h2 style={{ fontSize: '1.4rem', fontWeight: '500', marginBottom: '20px' }}>At-a-Glance</h2>}
 
             {/* Default Status Text */}
-            {theme !== '90s' && theme !== 'material' && theme !== 'fallout' && theme !== 'y2k' && theme !== 'cli' && (
+            {theme !== '90s' && theme !== 'material' && theme !== 'fallout' && theme !== 'y2k' && theme !== 'cli' && theme !== 'system7' && (
                 <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>
             )}
 
-            {/* --- CLI / TUI LAYOUT --- */}
-            {theme === 'cli' ? (
+            {/* --- SYSTEM 7 LAYOUT --- */}
+            {theme === 'system7' ? (
+                <div className="s7-content" style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>
+                    <div style={{ border: '1px solid #000', padding: '6px', background: '#fff', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontFamily: "'Chicago', sans-serif" }}>Status</span>
+                            <span>{status.replace('>', '').trim()}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontFamily: "'Chicago', sans-serif" }}>Condition</span>
+                            <span>{condition}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontFamily: "'Chicago', sans-serif" }}>Temp</span>
+                            <span>{temp !== '--' ? `${temp}°C` : '--'}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontFamily: "'Chicago', sans-serif" }}>Humidity</span>
+                            <span>{humidity !== '--' ? `${humidity}%` : '--'}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontFamily: "'Chicago', sans-serif" }}>Wind</span>
+                            <span>{wind !== '--' ? `${wind} km/h` : '--'}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontFamily: "'Chicago', sans-serif" }}>Precipitation</span>
+                            <span>{isLoaded ? `${precipChance}%` : '--'}</span>
+                        </div>
+                    </div>
+                </div>
+            ) : theme === 'cli' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', fontFamily: 'var(--font)' }}>
                     <div style={{ color: 'var(--accent)', marginBottom: '12px' }}>
                         root@mainframe:~# weewx-cli --current

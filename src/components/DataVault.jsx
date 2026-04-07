@@ -25,10 +25,14 @@ export default function DataVault() {
     }, []);
 
     return (
-        <div className={`dashboard-panel data-vault ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+        <div className={`dashboard-panel data-vault ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 
             {/* Themed Headers */}
-            {theme !== 'material' && theme !== 'cli' && (
+            {theme === 'system7' ? (
+                <div className="s7-titlebar">
+                    <span className="s7-title-text">Notepad</span>
+                </div>
+            ) : theme !== 'material' && theme !== 'cli' && (
                 <h2>
                     {theme === '90s' ? 'Untitled - Notepad' :
                         theme === 'cyberpunk' ? 'SECURE_ARCHIVE // FRAGMENT_ACCESS' :
@@ -48,12 +52,24 @@ export default function DataVault() {
             <div className={theme === '90s' ? 'vault-content' : theme === 'cyberpunk' ? 'cp-shard-body' : ''}>
 
                 {/* Default Status Text */}
-                {theme !== '90s' && theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' && theme !== 'cli' && (
+                {theme !== '90s' && theme !== 'cyberpunk' && theme !== 'fallout' && theme !== 'material' && theme !== 'cli' && theme !== 'system7' && (
                     <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>
                 )}
 
                 {lore ? (
-                    theme === 'cli' ? (
+                    theme === 'system7' ? (
+                        <div className="s7-content" style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>
+                            <div style={{ border: '1px solid #000', background: '#fff', padding: '6px', minHeight: '60px', display: 'flex', flexDirection: 'column' }}>
+                                <div style={{ flexGrow: 1, marginBottom: '8px' }}>
+                                    {lore.text}
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px dotted #000', paddingTop: '4px' }}>
+                                    <span style={{ fontFamily: "'Chicago', sans-serif" }}>Author: {lore.author}</span>
+                                    <span>[{lore.tag}]</span>
+                                </div>
+                            </div>
+                        </div>
+                    ) : theme === 'cli' ? (
                         /* --- CLI / TUI LAYOUT --- */
                         <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', fontFamily: 'var(--font)' }}>
                             <div style={{ color: 'var(--accent)', marginBottom: '12px' }}>
@@ -136,7 +152,7 @@ export default function DataVault() {
                     )
                 ) : (
                     <div style={{ opacity: 0.5 }}>
-                        {theme === '90s' ? '' : theme === 'cyberpunk' ? 'BRUTEFORCING ICE...' : theme === 'material' ? 'Decrypting daily archive...' : theme === 'cli' ? 'root@mainframe:~# gpg --decrypt\n> AWAITING PASSPHRASE...' : '> BRUTEFORCING ENCRYPTION...'}
+                        {theme === 'system7' ? <span style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>Loading archives...</span> : theme === '90s' ? '' : theme === 'cyberpunk' ? 'BRUTEFORCING ICE...' : theme === 'material' ? 'Decrypting daily archive...' : theme === 'cli' ? 'root@mainframe:~# gpg --decrypt\n> AWAITING PASSPHRASE...' : '> BRUTEFORCING ENCRYPTION...'}
                     </div>
                 )}
             </div>

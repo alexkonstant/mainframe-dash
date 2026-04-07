@@ -34,17 +34,23 @@ export default function SysStats({ stats }) {
     };
 
     return (
-        <div className={`dashboard-panel sys-stats ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
-            <h2>
-                {theme === '90s' ? 'System Properties' :
-                    theme === 'cyberpunk' ? 'CORE_DIAGNOSTICS' :
-                        theme === 'fallout' ? 'ROBCO_SYS_MONITOR' :
-                            theme === 'y2k' ? 'SYS_TELEMETRY // LIVE' :
-                                theme === 'cli' ? 'SYS_STAT' :
-                                    'HARDWARE_MONITOR'}
-            </h2>
+        <div className={`dashboard-panel sys-stats ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
+            {theme === 'system7' ? (
+                <div className="s7-titlebar">
+                    <span className="s7-title-text">System Data</span>
+                </div>
+            ) : (
+                <h2>
+                    {theme === '90s' ? 'System Properties' :
+                        theme === 'cyberpunk' ? 'CORE_DIAGNOSTICS' :
+                            theme === 'fallout' ? 'ROBCO_SYS_MONITOR' :
+                                theme === 'y2k' ? 'SYS_TELEMETRY // LIVE' :
+                                    theme === 'cli' ? 'SYS_STAT' :
+                                        'HARDWARE_MONITOR'}
+                </h2>
+            )}
 
-            {theme !== 'fallout' && theme !== 'material' && theme !== 'cli' && (
+            {theme !== 'fallout' && theme !== 'material' && theme !== 'cli' && theme !== 'system7' && (
                 <div style={{ opacity: theme === '90s' ? 1 : 0.7, marginBottom: '15px', fontStyle: theme === '90s' ? 'normal' : 'italic' }}>
                     {theme === '90s' ? `Status:  ${status.replace('>', '').trim()}` : status}
                 </div>
@@ -52,7 +58,31 @@ export default function SysStats({ stats }) {
 
             {stats ? (
                 <div style={{ lineHeight: '1.6' }}>
-                    {theme === '90s' ? (
+                    {theme === 'system7' ? (
+                        <div className="s7-content" style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>
+                            <div style={{ border: '1px solid #000', padding: '6px', background: '#fff', marginBottom: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontFamily: "'Chicago', sans-serif" }}>CPU Usage</span>
+                                    <span>{stats.cpu_percent}%</span>
+                                </div>
+                                <div style={{ border: '1px solid #000', height: '12px', background: '#fff', marginBottom: '4px' }}>
+                                    <div style={{ width: `${stats.cpu_percent}%`, height: '100%', background: '#000' }}></div>
+                                </div>
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontFamily: "'Chicago', sans-serif" }}>Memory</span>
+                                    <span>{stats.ram_used_mb}MB / {stats.ram_total_mb}MB</span>
+                                </div>
+                                <div style={{ border: '1px solid #000', height: '12px', background: '#fff' }}>
+                                    <div style={{ width: `${stats.ram_percent}%`, height: '100%', background: 'repeating-linear-gradient(45deg, #000, #000 1px, #fff 1px, #fff 2px)' }}></div>
+                                </div>
+                            </div>
+                            <div style={{ border: '1px solid #000', padding: '6px', background: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontFamily: "'Chicago', sans-serif" }}>Thermal Core</span>
+                                <span>{stats.temp_c > 0 ? `${stats.temp_c}°C` : 'Offline'}</span>
+                            </div>
+                        </div>
+                    ) : theme === '90s' ? (
                         /* ... 90s Layout ... */
                         <div className="win95-stats-container">
                             <div className="win95-stat-row"><span>CPU Usage... ({stats.cpu_percent}%)</span>{drawWin95Bar(stats.cpu_percent)}</div>

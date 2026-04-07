@@ -23,10 +23,14 @@ export default function SystemControl() {
     };
 
     return (
-        <div className={`dashboard-panel system-control ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+        <div className={`dashboard-panel system-control ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 
             {/* Themed Headers */}
-            {theme !== 'material' && theme !== 'cli' && (
+            {theme === 'system7' ? (
+                <div className="s7-titlebar">
+                    <span className="s7-title-text">Control Panel</span>
+                </div>
+            ) : theme !== 'material' && theme !== 'cli' && (
                 <h2>
                     {theme === '90s' ? 'Control Panel' :
                         theme === 'cyberpunk' ? 'SYS_CTRL // MASTER' :
@@ -63,6 +67,7 @@ export default function SystemControl() {
                             <option value="material">[ md_shell_ui ]</option>
                             <option value="y2k">[ flash_gui_x ]</option>
                             <option value="cli">[ bash_tui_mode ]</option>
+                            <option value="system7">[ mac_os_sys7 ]</option>
                         </select>
                     </div>
 
@@ -101,6 +106,7 @@ export default function SystemControl() {
                             <option value="material">MATERIAL_YOU</option>
                             <option value="y2k">FLASH_Y2K (ACTIVE)</option>
                             <option value="cli">RAW_CLI_TERMINAL</option>
+                            <option value="system7">SYSTEM_7_MAC</option>
                         </select>
                     </div>
                     <div style={{ display: 'flex', gap: '10px' }}>
@@ -129,6 +135,7 @@ export default function SystemControl() {
                             <option value="material">Material</option>
                             <option value="y2k">Y2K</option>
                             <option value="cli">MS-DOS Prompt</option>
+                            <option value="system7">Mac OS 7</option>
                         </select>
                     </div>
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', borderTop: '1px solid #808080', paddingTop: '10px' }}>
@@ -136,6 +143,49 @@ export default function SystemControl() {
                             Restart
                         </button>
                         <button onClick={() => handleSystemAction('shutdown')} style={{ background: '#c0c0c0', color: '#000', borderTop: '1px solid #fff', borderLeft: '1px solid #fff', borderRight: '1px solid #000', borderBottom: '1px solid #000', padding: '4px 15px', cursor: 'pointer', fontFamily: 'Arial, sans-serif', fontSize: '12px' }}>
+                            Shut Down...
+                        </button>
+                    </div>
+                </div>
+            ) : theme === 'system7' ? (
+                <div className="s7-content" style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                        <span style={{ fontFamily: "'Chicago', sans-serif" }}>Theme:</span>
+                        <select
+                            value={theme}
+                            onChange={(e) => setTheme(e.target.value)}
+                            style={{ 
+                                background: '#fff', color: '#000', border: '1px solid #000', 
+                                padding: '2px 4px', fontFamily: "'Geneva', sans-serif", fontSize: '11px', outline: 'none', flexGrow: 1
+                            }}
+                        >
+                            <option value="default">Default</option>
+                            <option value="90s">Windows 95</option>
+                            <option value="cyberpunk">Cyberpunk</option>
+                            <option value="fallout">Fallout</option>
+                            <option value="material">Material</option>
+                            <option value="y2k">Y2K</option>
+                            <option value="cli">CLI</option>
+                            <option value="system7">System 7</option>
+                        </select>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', borderTop: '1px dotted #000', paddingTop: '8px' }}>
+                        <button
+                            onMouseDown={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translate(1px, 1px)'; }}
+                            onMouseUp={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                            onClick={() => handleSystemAction('reboot')}
+                            style={{ border: '1px solid #000', borderRadius: '4px', background: '#fff', color: '#000', boxShadow: '1px 1px 0px #000', fontFamily: "'Geneva', sans-serif", padding: '2px 8px', cursor: 'pointer', fontSize: '11px', transition: 'none' }}
+                        >
+                            Restart
+                        </button>
+                        <button
+                            onMouseDown={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translate(1px, 1px)'; }}
+                            onMouseUp={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                            onClick={() => handleSystemAction('shutdown')}
+                            style={{ border: '1px solid #000', borderRadius: '4px', background: '#fff', color: '#000', boxShadow: '1px 1px 0px #000', fontFamily: "'Geneva', sans-serif", padding: '2px 8px', cursor: 'pointer', fontSize: '11px', transition: 'none' }}
+                        >
                             Shut Down...
                         </button>
                     </div>
@@ -156,6 +206,7 @@ export default function SystemControl() {
                         <option value="material">Material You Theme</option>
                         <option value="y2k">Y2K / Flash Theme</option>
                         <option value="cli">CLI / TUI Theme</option>
+                        <option value="system7">System 7 Theme</option>
                     </select>
 
                     <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>

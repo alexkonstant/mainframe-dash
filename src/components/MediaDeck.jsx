@@ -200,6 +200,32 @@ export default function MediaDeck({ audioData }) {
       );
     }
 
+    if (theme === 'system7') {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ fontFamily: 'Geneva, sans-serif', fontSize: '11px', color: '#000' }}>
+            <div style={{ fontWeight: 'bold', fontFamily: 'Chicago, sans-serif', marginBottom: '4px' }}>
+              STATUS: {status.state.toUpperCase()}
+            </div>
+            <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {status.track}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button onClick={togglePlay} style={{ border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer' }}>
+              {status.state === 'playing' ? '[ || ]' : '[ > ]'}
+            </button>
+            <button onClick={nextTrack} style={{ border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer' }}>
+              {"[ >> ]"}
+            </button>
+            <button onClick={() => setIsModalOpen(true)} style={{ border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer', marginLeft: 'auto' }}>
+              [ OPEN ]
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div style={theme === '90s' ? { border: '2px solid inset', padding: '10px' } : {}}>
         <div style={{ marginBottom: '15px' }}>
@@ -301,6 +327,18 @@ export default function MediaDeck({ audioData }) {
         borderRadius: '5px',
         boxShadow: 'inset 0 0 15px #00ff00'
       };
+    } else if (theme === 'system7') {
+      modalBoxStyle = {
+        ...modalBoxStyle,
+        background: '#fff',
+        border: '1px solid #000',
+        borderRadius: 0,
+        boxShadow: '4px 4px 0px #000',
+        color: '#000',
+        padding: '2px',
+        display: 'flex',
+        flexDirection: 'column'
+      };
     } else if (theme === 'material') {
       modalBoxStyle = {
         ...modalBoxStyle,
@@ -312,6 +350,11 @@ export default function MediaDeck({ audioData }) {
     }
 
     const closeBtn = () => {
+      if (theme === 'system7') {
+        return (
+          <button onClick={() => setIsModalOpen(false)} style={{ position: 'absolute', left: '2px', top: '2px', width: '12px', height: '12px', border: '1px solid #000', background: '#fff', cursor: 'pointer' }}></button>
+        );
+      }
       if (theme === '90s') {
         return (
           <button onClick={() => setIsModalOpen(false)} style={{ background: '#c0c0c0', border: '1px solid #fff', borderRightColor: '#000', borderBottomColor: '#000', padding: '2px 5px', fontWeight: 'bold', cursor: 'pointer' }}>X</button>
@@ -323,12 +366,22 @@ export default function MediaDeck({ audioData }) {
     };
 
     const renderTabs = () => (
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: theme === '90s' ? 'none' : '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', borderBottom: theme === '90s' ? 'none' : theme === 'system7' ? '1px solid #000' : '1px solid rgba(255,255,255,0.1)', paddingBottom: theme === 'system7' ? '0px' : '10px', paddingLeft: theme === 'system7' ? '10px' : '0' }}>
         {['QUEUE', 'LIBRARY', 'PLAYLISTS'].map(tab => {
           const isActive = activeTab === tab;
           let style = { padding: '8px 15px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' };
           
-          if (theme === 'material') {
+          if (theme === 'system7') {
+            style = {
+              ...style,
+              fontFamily: 'Chicago, sans-serif',
+              background: isActive ? '#000' : '#fff',
+              color: isActive ? '#fff' : '#000',
+              border: '1px solid #000',
+              borderBottom: isActive ? '1px solid #000' : 'none',
+              marginBottom: '-1px'
+            };
+          } else if (theme === 'material') {
             style = { ...style, borderRadius: '20px', background: isActive ? 'var(--accent)' : 'transparent', color: isActive ? 'var(--bg)' : 'var(--text)' };
           } else if (theme === '90s') {
             style = { ...style, background: '#c0c0c0', border: isActive ? '2px solid inset' : '2px solid outset', boxShadow: isActive ? 'inset 1px 1px #000' : 'none' };
@@ -345,25 +398,36 @@ export default function MediaDeck({ audioData }) {
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
           <div style={{ fontSize: '14px', fontWeight: 'bold' }}>Active Queue ({playlist.length})</div>
-          <button onClick={clearQueue} className={btnClass} style={btnStyle}>{theme === 'cli' ? '[ CLEAR ]' : 'Clear Queue'}</button>
+          <button onClick={clearQueue} className={btnClass} style={theme === 'system7' ? { border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer' } : btnStyle}>{theme === 'cli' ? '[ CLEAR ]' : 'Clear Queue'}</button>
         </div>
-        {playlist.map((track, i) => (
-          <div key={i} onClick={() => playIndex(i + 1)} style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', background: status.track === track ? 'rgba(0,255,0,0.1)' : 'transparent' }}>
-            <span style={{ marginRight: '10px', opacity: 0.5 }}>{String(i + 1).padStart(2, '0')}</span>
-            <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{track}</span>
-            {status.track === track && <span style={{ color: 'var(--accent)' }}>▶</span>}
-          </div>
-        ))}
-        <div style={{ marginTop: '20px', padding: '15px', border: '1px dashed var(--accent)', borderRadius: theme === 'material' ? '16px' : '0' }}>
-          <div style={{ fontSize: '12px', marginBottom: '10px' }}>SAVE CURRENT QUEUE AS PLAYLIST</div>
+        <div style={theme === 'system7' ? { border: '1px solid #000', background: '#fff', padding: '2px', fontFamily: 'Geneva, sans-serif', fontSize: '11px', color: '#000' } : {}}>
+          {playlist.map((track, i) => {
+            const isActive = status.track === track;
+            let itemStyle = { padding: '8px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center' };
+            if (theme === 'system7') {
+              itemStyle = { ...itemStyle, background: isActive ? '#000' : 'transparent', color: isActive ? '#fff' : '#000', borderBottom: '1px dotted #000', padding: '4px' };
+            } else {
+              itemStyle = { ...itemStyle, background: isActive ? 'rgba(0,255,0,0.1)' : 'transparent' };
+            }
+            return (
+              <div key={i} onClick={() => playIndex(i + 1)} style={itemStyle}>
+                <span style={{ marginRight: '10px', opacity: theme === 'system7' ? 1 : 0.5 }}>{String(i + 1).padStart(2, '0')}</span>
+                <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{track}</span>
+                {isActive && <span style={{ color: theme === 'system7' ? '#fff' : 'var(--accent)' }}>▶</span>}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: '20px', padding: '15px', border: theme === 'system7' ? '1px solid #000' : '1px dashed var(--accent)', borderRadius: theme === 'material' ? '16px' : '0' }}>
+          <div style={{ fontSize: '12px', marginBottom: '10px', fontFamily: theme === 'system7' ? 'Chicago, sans-serif' : 'inherit' }}>SAVE CURRENT QUEUE AS PLAYLIST</div>
           <div style={{ display: 'flex', gap: '10px' }}>
             <input 
               value={newPlaylistName} 
               onChange={e => setNewPlaylistName(e.target.value)} 
               placeholder="Playlist Name" 
-              style={{ flex: 1, background: 'rgba(0,0,0,0.3)', border: '1px solid var(--accent)', color: '#fff', padding: '5px' }}
+              style={{ flex: 1, background: theme === 'system7' ? '#fff' : 'rgba(0,0,0,0.3)', border: theme === 'system7' ? '1px inset #000' : '1px solid var(--accent)', color: theme === 'system7' ? '#000' : '#fff', padding: '5px' }}
             />
-            <button onClick={savePlaylist} className={btnClass} style={btnStyle}>SAVE</button>
+            <button onClick={savePlaylist} className={btnClass} style={theme === 'system7' ? { border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer' } : btnStyle}>SAVE</button>
           </div>
         </div>
       </div>
@@ -375,68 +439,87 @@ export default function MediaDeck({ audioData }) {
           <div style={{ fontSize: '14px', fontWeight: 'bold' }}>File Library</div>
           <div>
             <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="audio/*" style={{ display: 'none' }} id="modal-audio-upload" />
-            <label htmlFor="modal-audio-upload" className={btnClass} style={{ ...btnStyle, display: 'inline-block', opacity: isUploading ? 0.5 : 1 }}>
+            <label htmlFor="modal-audio-upload" className={btnClass} style={theme === 'system7' ? { border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer', display: 'inline-block', opacity: isUploading ? 0.5 : 1 } : { ...btnStyle, display: 'inline-block', opacity: isUploading ? 0.5 : 1 }}>
               {isUploading ? 'UPLOADING...' : 'UPLOAD NEW'}
             </label>
           </div>
         </div>
-        {library.map((file, i) => (
-          <div key={i} style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center' }}>
-            <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{file}</span>
-            <button onClick={() => addToQueue(file)} style={{ background: 'transparent', border: '1px solid var(--accent)', color: 'var(--accent)', fontSize: '10px', cursor: 'pointer' }}>+ QUEUE</button>
-          </div>
-        ))}
+        <div style={theme === 'system7' ? { border: '1px solid #000', background: '#fff', padding: '2px', fontFamily: 'Geneva, sans-serif', fontSize: '11px', color: '#000' } : {}}>
+          {library.map((file, i) => (
+            <div key={i} style={{ padding: theme === 'system7' ? '4px' : '8px', borderBottom: theme === 'system7' ? '1px dotted #000' : '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center' }}>
+              <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{file}</span>
+              <button onClick={() => addToQueue(file)} style={theme === 'system7' ? { border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer', fontSize: '10px' } : { background: 'transparent', border: '1px solid var(--accent)', color: 'var(--accent)', fontSize: '10px', cursor: 'pointer' }}>+ QUEUE</button>
+            </div>
+          ))}
+        </div>
       </div>
     );
 
     const renderPlaylists = () => (
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '15px' }}>Saved Playlists</div>
-        {playlists.map((pl, i) => (
-          <div key={i} style={{ padding: '10px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center' }}>
-            <span style={{ flex: 1 }}>{pl}</span>
-            <button onClick={() => loadPlaylist(pl)} className={btnClass} style={btnStyle}>LOAD</button>
-          </div>
-        ))}
+        <div style={theme === 'system7' ? { border: '1px solid #000', background: '#fff', padding: '2px', fontFamily: 'Geneva, sans-serif', fontSize: '11px', color: '#000' } : {}}>
+          {playlists.map((pl, i) => (
+            <div key={i} style={{ padding: theme === 'system7' ? '4px' : '10px', borderBottom: theme === 'system7' ? '1px dotted #000' : '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center' }}>
+              <span style={{ flex: 1 }}>{pl}</span>
+              <button onClick={() => loadPlaylist(pl)} className={btnClass} style={theme === 'system7' ? { border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer' } : btnStyle}>LOAD</button>
+            </div>
+          ))}
+        </div>
       </div>
     );
 
     return (
       <div style={overlayStyle} onClick={() => setIsModalOpen(false)}>
         <div style={modalBoxStyle} className="modal-animate" onClick={e => e.stopPropagation()}>
+          {theme === 'system7' && (
+            <div style={{ height: '20px', border: '1px solid #000', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', marginBottom: '10px', background: 'repeating-linear-gradient(0deg, #000, #000 1px, transparent 1px, transparent 2px)' }}>
+              {closeBtn()}
+              <span style={{ background: '#fff', padding: '0 8px', fontFamily: 'Chicago, sans-serif', fontWeight: 'bold', fontSize: '12px', zIndex: 2 }}>Media Center</span>
+            </div>
+          )}
           {theme === '90s' && (
             <div style={{ background: 'navy', color: '#fff', padding: '3px 5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
               <span style={{ fontWeight: 'bold', fontSize: '12px' }}>Media Center</span>
               {closeBtn()}
             </div>
           )}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            {theme !== '90s' && <h2 style={{ margin: 0, fontSize: '18px' }}>{theme === 'cli' ? 'MAINFRAME // MEDIA_CENTER' : 'Media Center'}</h2>}
-            {theme !== '90s' && closeBtn()}
-          </div>
-          
-          {renderTabs()}
-          
-          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            {activeTab === 'QUEUE' && renderQueue()}
-            {activeTab === 'LIBRARY' && renderLibrary()}
-            {activeTab === 'PLAYLISTS' && renderPlaylists()}
-          </div>
-          
-          {theme === 'y2k' && <div className="y2k-scanline" style={{ pointerEvents: 'none' }}></div>}
-          {theme === 'cli' && (
-            <div style={{ marginTop: '15px', borderTop: '1px dashed #555', paddingTop: '10px', fontSize: '10px', opacity: 0.5 }}>
-              STATUS: SYSTEM_UPLINK // {status.state.toUpperCase()} // VOL: {status.volume}
+          {theme !== 'system7' && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              {theme !== '90s' && <h2 style={{ margin: 0, fontSize: '18px' }}>{theme === 'cli' ? 'MAINFRAME // MEDIA_CENTER' : 'Media Center'}</h2>}
+              {theme !== '90s' && closeBtn()}
             </div>
           )}
+          
+          <div style={{ padding: theme === 'system7' ? '0 10px 10px 10px' : '0', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+            {renderTabs()}
+            
+            <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              {activeTab === 'QUEUE' && renderQueue()}
+              {activeTab === 'LIBRARY' && renderLibrary()}
+              {activeTab === 'PLAYLISTS' && renderPlaylists()}
+            </div>
+            
+            {theme === 'y2k' && <div className="y2k-scanline" style={{ pointerEvents: 'none' }}></div>}
+            {theme === 'cli' && (
+              <div style={{ marginTop: '15px', borderTop: '1px dashed #555', paddingTop: '10px', fontSize: '10px', opacity: 0.5 }}>
+                STATUS: SYSTEM_UPLINK // {status.state.toUpperCase()} // VOL: {status.volume}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
   };
 
   return (
-    <div className={`dashboard-panel ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`} style={{ marginBottom: '20px' }}>
-      {theme !== 'cli' && (
+    <div className={`dashboard-panel ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`} style={{ marginBottom: '20px' }}>
+      {theme === 'system7' && (
+          <div className="s7-titlebar">
+              <span className="s7-title-text">Media Player</span>
+          </div>
+      )}
+      {theme !== 'cli' && theme !== 'system7' && (
         <h2 style={{ margin: '0 0 15px 0' }}>
           {theme === '90s' ? 'Media Player' :
            theme === 'cyberpunk' ? 'AUDIO_UPLINK // MPD' :
@@ -445,7 +528,13 @@ export default function MediaDeck({ audioData }) {
            'AUDIO_DECK'}
         </h2>
       )}
-      {renderCompactPanel()}
+      {theme === 'system7' ? (
+          <div className="s7-content">
+            {renderCompactPanel()}
+          </div>
+      ) : (
+          renderCompactPanel()
+      )}
       {renderModal()}
     </div>
   );

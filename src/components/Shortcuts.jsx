@@ -68,9 +68,14 @@ export default function Shortcuts() {
     };
 
     return (
-        <div className={`dashboard-panel shortcuts-module ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+        <div className={`dashboard-panel shortcuts-module ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 
             {/* Header Block */}
+            {theme === 'system7' ? (
+                <div className="s7-titlebar">
+                    <span className="s7-title-text">Shortcuts</span>
+                </div>
+            ) : (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                 <h2 style={{ margin: 0, flexGrow: 1 }}>
                     {theme === '90s' ? 'Control Panel' :
@@ -93,9 +98,10 @@ export default function Shortcuts() {
                     </button>
                 )}
             </div>
+            )}
 
             {/* Terminal status text (hidden for specific themes) */}
-            {theme !== '90s' && theme !== 'material' && theme !== 'y2k' && theme !== 'cli' && (
+            {theme !== '90s' && theme !== 'material' && theme !== 'y2k' && theme !== 'cli' && theme !== 'system7' && (
                 <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>
             )}
 
@@ -136,6 +142,45 @@ export default function Shortcuts() {
                             </div>
                         )) : (
                             <div style={{ color: '#555', fontStyle: 'italic' }}>total 0</div>
+                        )}
+                    </div>
+                </div>
+            ) : theme === 'system7' ? (
+                <div className="s7-content" style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+                        <button
+                            onClick={() => setIsEditing(!isEditing)}
+                            onMouseDown={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translate(1px, 1px)'; }}
+                            onMouseUp={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                            style={{ border: '1px solid #000', borderRadius: '4px', background: '#fff', color: '#000', boxShadow: '1px 1px 0px #000', fontFamily: "'Geneva', sans-serif", padding: '2px 8px', cursor: 'pointer', fontSize: '10px', transition: 'none' }}
+                        >
+                            {isEditing ? 'Done' : 'Edit'}
+                        </button>
+                    </div>
+                    <div style={{ border: '1px solid #000', background: '#fff', padding: '2px' }}>
+                        {links.length > 0 ? links.map((link, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', borderBottom: i === links.length - 1 ? 'none' : '1px dotted #000', padding: '4px 2px' }}>
+                                {isEditing && (
+                                    <button 
+                                        onClick={() => handleDelete(i)} 
+                                        onMouseDown={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translate(1px, 1px)'; }}
+                                        onMouseUp={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                                        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                                        style={{ border: '1px solid #000', borderRadius: '4px', background: '#fff', color: '#000', boxShadow: '1px 1px 0px #000', fontFamily: "'Geneva', sans-serif", padding: '0 4px', cursor: 'pointer', fontSize: '9px', transition: 'none', marginRight: '8px' }}
+                                    >
+                                        DEL
+                                    </button>
+                                )}
+                                <span style={{ width: '12px', height: '12px', border: '1px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '8px', fontSize: '8px' }}>
+                                    ■
+                                </span>
+                                <a href={link.url} target="_blank" rel="noreferrer" style={{ flexGrow: 1, textDecoration: 'none', color: '#000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {link.name || 'LINK'}
+                                </a>
+                            </div>
+                        )) : (
+                            <div style={{ padding: '4px 2px', fontStyle: 'italic' }}>No items found.</div>
                         )}
                     </div>
                 </div>
@@ -203,7 +248,26 @@ export default function Shortcuts() {
 
             {/* Themed Injection Form */}
             {isEditing && (
-                theme === 'cli' ? (
+                theme === 'system7' ? (
+                    <form onSubmit={handleAdd} style={{ marginTop: '12px', border: '1px solid #000', background: '#fff', padding: '6px', display: 'flex', flexDirection: 'column', gap: '6px', fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>
+                        <div style={{ fontFamily: "'Chicago', sans-serif" }}>Add Shortcut</div>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                            <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Name" style={{ border: '1px solid #000', padding: '2px 4px', flex: 1, fontFamily: "'Geneva', sans-serif", fontSize: '11px', outline: 'none' }} />
+                            <input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="URL" style={{ border: '1px solid #000', padding: '2px 4px', flex: 2, fontFamily: "'Geneva', sans-serif", fontSize: '11px', outline: 'none' }} />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <button 
+                                type="submit" 
+                                onMouseDown={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translate(1px, 1px)'; }}
+                                onMouseUp={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                                style={{ border: '1px solid #000', borderRadius: '4px', background: '#fff', color: '#000', boxShadow: '1px 1px 0px #000', fontFamily: "'Geneva', sans-serif", padding: '2px 8px', cursor: 'pointer', fontSize: '10px', transition: 'none' }}
+                            >
+                                Add
+                            </button>
+                        </div>
+                    </form>
+                ) : theme === 'cli' ? (
                     /* CLI "Create Symlink" Form Override */
                     <form onSubmit={handleAdd} style={{ marginTop: '15px', borderTop: '1px dashed #555', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <div style={{ color: 'var(--accent)' }}>root@mainframe:~# ln -s [TARGET] [NAME]</div>

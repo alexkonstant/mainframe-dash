@@ -25,10 +25,14 @@ export default function NetworkRadar() {
     }, []);
 
     return (
-        <div className={`dashboard-panel network-radar ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+        <div className={`dashboard-panel network-radar ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 
             {/* Header Block */}
-            {theme !== 'material' && theme !== 'cli' && (
+            {theme === 'system7' ? (
+                <div className="s7-titlebar">
+                    <span className="s7-title-text">Network Radar</span>
+                </div>
+            ) : theme !== 'material' && theme !== 'cli' && (
                 <h2>
                     {theme === '90s' ? 'MS-DOS Prompt' :
                         theme === 'cyberpunk' ? 'ICE_BREACH // NODE_MAPPING' :
@@ -42,7 +46,7 @@ export default function NetworkRadar() {
             <div className={theme === '90s' ? 'radar-content' : ''}>
 
                 {/* Status Text (Hidden for Y2K and CLI since they get custom terminal headers) */}
-                {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== 'cli' && (
+                {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== 'cli' && theme !== 'system7' && (
                     <div style={{ opacity: theme === '90s' ? 1 : 0.7, marginBottom: '15px', fontStyle: theme === '90s' ? 'normal' : 'italic' }}>
                         {theme === '90s' ? 'C:\\WINDOWS> ping -t local_network' : status}
                     </div>
@@ -63,7 +67,24 @@ export default function NetworkRadar() {
                         )}
 
                         {/* --- CLI / TUI LAYOUT OVERRIDE --- */}
-                        {theme === 'cli' ? (
+                        {theme === 'system7' ? (
+                            <div className="s7-content" style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>
+                                <div style={{ border: '1px solid #000', background: '#fff', padding: '2px' }}>
+                                    <div style={{ display: 'flex', borderBottom: '1px solid #000', paddingBottom: '2px', marginBottom: '2px', fontFamily: "'Chicago', sans-serif" }}>
+                                        <span style={{ flex: 1, paddingLeft: '4px' }}>Target Host</span>
+                                        <span style={{ width: '80px', textAlign: 'right', paddingRight: '4px' }}>Status</span>
+                                    </div>
+                                    {radar.map((node, i) => (
+                                        <div key={i} style={{ display: 'flex', borderBottom: i === radar.length - 1 ? 'none' : '1px dotted #000', padding: '4px' }}>
+                                            <span style={{ flex: 1 }}>{node.name}</span>
+                                            <span style={{ width: '80px', textAlign: 'right' }}>
+                                                {node.status === 'ONLINE' ? 'Up' : 'Down'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : theme === 'cli' ? (
                             <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', fontFamily: 'var(--font)' }}>
                                 <div style={{ color: 'var(--accent)', marginBottom: '12px' }}>
                                     root@mainframe:~# fping -g targets.lst

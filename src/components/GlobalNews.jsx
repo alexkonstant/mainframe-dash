@@ -30,11 +30,11 @@ export default function GlobalNews() {
 
     return (
         <div
-            className={`dashboard-panel global-news ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}
+            className={`dashboard-panel global-news ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}
             style={theme === '90s' ? { padding: 0, background: '#c0c0c0', border: '2px solid', borderColor: '#ffffff #000000 #000000 #ffffff' } : {}}
         >
-            {/* Header Area (Hidden for 90s and CLI) */}
-            {theme !== '90s' && theme !== 'cli' && (
+            {/* Header Area (Hidden for 90s, CLI, and System 7) */}
+            {theme !== '90s' && theme !== 'cli' && theme !== 'system7' && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: theme === 'material' ? '20px' : '15px' }}>
                     <h2 style={{ flexGrow: 1, marginRight: '15px', marginBottom: theme === 'material' ? '0' : '' }}>
                         {theme === 'cyberpunk' ? 'GLOBAL_FEED // N54_NEWS' :
@@ -55,12 +55,56 @@ export default function GlobalNews() {
             )}
 
             {/* Default Status Indicators */}
-            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== '90s' && theme !== 'cli' && (
+            {theme !== 'fallout' && theme !== 'material' && theme !== 'y2k' && theme !== '90s' && theme !== 'cli' && theme !== 'system7' && (
                 <div style={{ opacity: 0.7, marginBottom: '15px', fontStyle: 'italic' }}>{status}</div>
             )}
 
-            {/* --- CLI / TUI TERMINAL LAYOUT --- */}
-            {theme === 'cli' ? (
+            {/* --- SYSTEM 7 LAYOUT --- */}
+            {theme === 'system7' ? (
+                <div style={{ background: '#fff', border: '1px solid #000', boxShadow: '4px 4px 0px #000', padding: '2px', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ height: '20px', border: '1px solid #000', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', marginBottom: '5px', background: 'repeating-linear-gradient(0deg, #000, #000 1px, transparent 1px, transparent 2px)' }}>
+                        <div style={{ position: 'absolute', left: '2px', top: '2px', width: '12px', height: '12px', border: '1px solid #000', background: '#fff', cursor: 'pointer' }}></div>
+                        <span style={{ background: '#fff', padding: '0 8px', fontFamily: 'Chicago, sans-serif', fontSize: '12px', zIndex: 2 }}>
+                            Global News
+                        </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '5px' }}>
+                        <button 
+                            onClick={fetchNews} 
+                            disabled={isRefreshing} 
+                            style={{ 
+                                border: '1px solid #000', 
+                                boxShadow: isRefreshing ? 'none' : '1px 1px 0px #000', 
+                                background: '#fff', 
+                                color: '#000', 
+                                fontFamily: "'Geneva', sans-serif",
+                                padding: '2px 8px',
+                                fontSize: '11px',
+                                cursor: isRefreshing ? 'wait' : 'pointer',
+                                transform: isRefreshing ? 'translate(1px, 1px)' : 'none'
+                            }}
+                            onMouseDown={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translate(1px, 1px)'; }}
+                            onMouseUp={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
+                        >
+                            {isRefreshing ? 'Syncing...' : 'Sync'}
+                        </button>
+                    </div>
+                    <div style={{ border: '1px solid #000', background: '#fff', flexGrow: 1, overflowY: 'auto', maxHeight: '250px' }}>
+                        {news && news.length > 0 ? news.map((item, i) => (
+                            <div key={i} style={{ borderBottom: '1px solid #000', padding: '4px' }}>
+                                <a href={item.link || item.url} target="_blank" rel="noreferrer" style={{ color: '#000', textDecoration: 'none', fontFamily: "'Geneva', sans-serif", fontSize: '11px' }}>
+                                    {item.title}
+                                </a>
+                            </div>
+                        )) : (
+                            <div style={{ color: '#000', fontFamily: "'Geneva', sans-serif", fontSize: '11px', padding: '4px' }}>
+                                {isRefreshing ? 'Fetching data...' : 'No news available.'}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ) : theme === 'cli' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', fontSize: '14px', fontFamily: 'var(--font)' }}>
                     <div style={{ color: 'var(--accent)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span>root@mainframe:~# rsstail -i 5 -u global_feed</span>

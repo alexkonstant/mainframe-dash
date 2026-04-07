@@ -60,32 +60,65 @@ export default function BluetoothManager() {
   };
 
   return (
-      <div className={`dashboard-panel ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : ''}`}>
+      <div className={`dashboard-panel ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 
         {/* Header Block */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-          <h2 style={{ margin: 0, flexGrow: 1 }}>
-            {theme === '90s' ? 'Bluetooth' :
-                theme === 'cyberpunk' ? 'UPLINK_NODE' :
-                    theme === 'fallout' ? 'RADIO_LINK' :
-                        theme === 'y2k' ? 'SYS_COMMS // BLUETOOTH' :
-                            theme === 'cli' ? 'BT_CONFIG' :
-                                'Connections'}
-          </h2>
+        {theme === 'system7' && (
+            <div className="s7-titlebar">
+                <span className="s7-title-text">Bluetooth Setup</span>
+            </div>
+        )}
+        
+        {theme !== 'system7' && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+              <h2 style={{ margin: 0, flexGrow: 1 }}>
+                {theme === '90s' ? 'Bluetooth' :
+                    theme === 'cyberpunk' ? 'UPLINK_NODE' :
+                        theme === 'fallout' ? 'RADIO_LINK' :
+                            theme === 'y2k' ? 'SYS_COMMS // BLUETOOTH' :
+                                theme === 'cli' ? 'BT_CONFIG' :
+                                    'Connections'}
+              </h2>
 
-          {/* Toggle Button (Hidden in CLI mode so we can render it inline with the terminal text) */}
-          {theme !== 'cli' && (
-              <button
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className={theme === 'fallout' ? 'fo-edit-btn' : theme === 'material' ? (isExpanded ? 'md-btn-active' : 'md-btn-tonal') : ''}
-                  style={theme !== 'fallout' && theme !== 'material' && theme !== '90s' && theme !== 'y2k' ? { background: isExpanded ? 'var(--accent)' : 'transparent', color: isExpanded ? 'var(--bg)' : 'var(--accent)', border: '1px solid var(--accent)', cursor: 'pointer', fontWeight: 'bold', padding: '5px 10px' } : theme === 'y2k' ? { padding: '4px 10px' } : {}}
-              >
-                {isExpanded ? (theme === 'material' ? 'Done' : theme === 'y2k' ? '[ CLOSE_NODE ]' : '[ DONE ]') : (theme === 'material' ? 'Manage' : theme === 'y2k' ? '[ CONFIG ]' : '[ MANAGE ]')}
-              </button>
-          )}
-        </div>
+              {/* Toggle Button (Hidden in CLI mode so we can render it inline with the terminal text) */}
+              {theme !== 'cli' && (
+                  <button
+                      onClick={() => setIsExpanded(!isExpanded)}
+                      className={theme === 'fallout' ? 'fo-edit-btn' : theme === 'material' ? (isExpanded ? 'md-btn-active' : 'md-btn-tonal') : ''}
+                      style={theme !== 'fallout' && theme !== 'material' && theme !== '90s' && theme !== 'y2k' ? { background: isExpanded ? 'var(--accent)' : 'transparent', color: isExpanded ? 'var(--bg)' : 'var(--accent)', border: '1px solid var(--accent)', cursor: 'pointer', fontWeight: 'bold', padding: '5px 10px' } : theme === 'y2k' ? { padding: '4px 10px' } : {}}
+                  >
+                    {isExpanded ? (theme === 'material' ? 'Done' : theme === 'y2k' ? '[ CLOSE_NODE ]' : '[ DONE ]') : (theme === 'material' ? 'Manage' : theme === 'y2k' ? '[ CONFIG ]' : '[ MANAGE ]')}
+                  </button>
+              )}
+            </div>
+        )}
 
-        {theme === 'y2k' ? (
+        {theme === 'system7' ? (
+            <div className="s7-content">
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                    <div><strong>Status:</strong> {status} {connectedName ? `- ${connectedName}` : ''}</div>
+                    <button onClick={() => setIsExpanded(!isExpanded)} style={{ border: '1px solid #000', background: '#fff', color: '#000', cursor: 'pointer', padding: '2px 8px' }}>
+                        {isExpanded ? 'Done' : 'Manage'}
+                    </button>
+                </div>
+                {isExpanded && (
+                    <div style={{ borderTop: '1px solid #000', paddingTop: '10px', marginTop: '10px' }}>
+                        <button onClick={scanDevices} disabled={isScanning} style={{ border: '1px solid #000', background: '#fff', color: '#000', cursor: 'pointer', padding: '2px 8px', marginBottom: '10px' }}>
+                            {isScanning ? 'Scanning...' : 'Scan Devices'}
+                        </button>
+                        <ul style={{ paddingLeft: '20px', margin: 0 }}>
+                            {devices && devices.map((d, i) => (
+                                <li key={i} style={{ marginBottom: '4px' }}>
+                                    <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => connectDevice(d.mac)}>
+                                        {d.name || d.mac}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
+        ) : theme === 'y2k' ? (
             /* =========================================
                Y2K 2ADVANCED FLASH LAYOUT
                ========================================= */
