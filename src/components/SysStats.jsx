@@ -33,6 +33,56 @@ export default function SysStats({ stats }) {
         );
     };
 
+    if (theme === 'rickmorty') {
+        return (
+            <div style={{ background: 'rgba(10, 15, 20, 0.9)', border: '2px solid #97ce4c', borderRadius: '10px', boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)', padding: '15px', color: '#97ce4c', fontFamily: "'Courier New', Courier, monospace", display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '20px' }}>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '5px' }}>// RICK_OS_TELEMETRY</div>
+                {!stats ? (
+                    <div style={{ opacity: 0.5 }}>&gt; WAITING FOR DATA PACKETS...</div>
+                ) : (
+                    <>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                                <span>MICROVERSE_BATTERY</span>
+                                <span>{stats.cpu_percent}%</span>
+                            </div>
+                            <div style={{ width: '100%', height: '10px', background: 'rgba(10, 15, 20, 0.9)', border: '1px solid #97ce4c', borderRadius: '4px' }}>
+                                <div style={{ width: `${stats.cpu_percent}%`, height: '100%', background: '#97ce4c', boxShadow: '0 0 5px #97ce4c', borderRadius: '3px' }}></div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                                <span>ISOTOPE_322_CAPACITY</span>
+                                <span>{stats.ram_percent}%</span>
+                            </div>
+                            <div style={{ width: '100%', height: '10px', background: 'rgba(10, 15, 20, 0.9)', border: '1px solid #97ce4c', borderRadius: '4px' }}>
+                                <div style={{ width: `${stats.ram_percent}%`, height: '100%', background: '#97ce4c', boxShadow: '0 0 5px #97ce4c', borderRadius: '3px' }}></div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                                <span>DIMENSIONAL_ARCHIVE_CAPACITY</span>
+                                <span>[{stats.disk_percent}%] ({stats.disk_used_gb} GB / {stats.disk_total_gb} GB)</span>
+                            </div>
+                            <div style={{ width: '100%', height: '10px', background: 'rgba(10, 15, 20, 0.9)', border: '1px solid #97ce4c', borderRadius: '4px' }}>
+                                <div style={{ width: `${stats.disk_percent}%`, height: '100%', background: '#97ce4c', boxShadow: '0 0 5px #97ce4c', borderRadius: '3px' }}></div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginTop: '5px' }}>
+                            <span>REACTOR_TEMP</span>
+                            <span style={{ color: stats.temp_c > 60 ? '#f0e14a' : '#97ce4c', textShadow: stats.temp_c > 60 ? '0 0 5px #f0e14a' : 'none' }}>
+                                {stats.temp_c > 0 ? `${stats.temp_c}°C` : 'OFFLINE'}
+                            </span>
+                        </div>
+                    </>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className={`dashboard-panel sys-stats ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
             {theme === 'system7' ? (
@@ -76,6 +126,14 @@ export default function SysStats({ stats }) {
                                 <div style={{ border: '1px solid #000', height: '12px', background: '#fff' }}>
                                     <div style={{ width: `${stats.ram_percent}%`, height: '100%', background: 'repeating-linear-gradient(45deg, #000, #000 1px, #fff 1px, #fff 2px)' }}></div>
                                 </div>
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                                    <span style={{ fontFamily: "'Chicago', sans-serif" }}>Macintosh HD</span>
+                                    <span>[{stats.disk_percent}%] ({stats.disk_used_gb} GB / {stats.disk_total_gb} GB)</span>
+                                </div>
+                                <div style={{ border: '1px solid #000', height: '12px', background: '#fff' }}>
+                                    <div style={{ width: `${stats.disk_percent}%`, height: '100%', background: 'repeating-linear-gradient(45deg, #000, #000 1px, #fff 1px, #fff 2px)' }}></div>
+                                </div>
                             </div>
                             <div style={{ border: '1px solid #000', padding: '6px', background: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span style={{ fontFamily: "'Chicago', sans-serif" }}>Thermal Core</span>
@@ -87,6 +145,7 @@ export default function SysStats({ stats }) {
                         <div className="win95-stats-container">
                             <div className="win95-stat-row"><span>CPU Usage... ({stats.cpu_percent}%)</span>{drawWin95Bar(stats.cpu_percent)}</div>
                             <div className="win95-stat-row"><span>Memory allocated... {stats.ram_used_mb}MB / {stats.ram_total_mb}MB</span>{drawWin95Bar(stats.ram_percent)}</div>
+                            <div className="win95-stat-row"><span>Storage... [{stats.disk_percent}%] ({stats.disk_used_gb} GB / {stats.disk_total_gb} GB)</span>{drawWin95Bar(stats.disk_percent)}</div>
                             <div className="win95-stat-row" style={{ marginTop: '5px' }}><span>Thermal Core: {stats.temp_c > 0 ? `${stats.temp_c}°C` : 'Offline'}</span></div>
                         </div>
                     ) : theme === 'cyberpunk' ? (
@@ -94,6 +153,7 @@ export default function SysStats({ stats }) {
                         <div className="cp-hud-grid">
                             <div className="cp-hud-item"><div className="cp-hud-label">NEURAL_PROC <span>[{stats.cpu_percent}%]</span></div><div className="cp-hud-bar-bg"><div className="cp-hud-bar-fill" style={{ width: `${stats.cpu_percent}%` }}></div></div></div>
                             <div className="cp-hud-item"><div className="cp-hud-label">RAM_CAPACITY <span>[{stats.ram_percent}%]</span></div><div className="cp-hud-bar-bg"><div className="cp-hud-bar-fill" style={{ width: `${stats.ram_percent}%` }}></div></div></div>
+                            <div className="cp-hud-item"><div className="cp-hud-label">DATA_VAULT <span>[{stats.disk_percent}%] ({stats.disk_used_gb} GB / {stats.disk_total_gb} GB)</span></div><div className="cp-hud-bar-bg"><div className="cp-hud-bar-fill" style={{ width: `${stats.disk_percent}%` }}></div></div></div>
                             <div className="cp-hud-item cp-thermal"><div className="cp-hud-label">THERMAL_CORE</div><div className={`cp-hud-value ${stats.temp_c > 60 ? 'cp-warning' : ''}`}>{stats.temp_c > 0 ? `${stats.temp_c}°C` : 'ERR_SENSOR'}{stats.temp_c > 60 && <span className="cp-warning-text"> // OVERHEAT</span>}</div></div>
                         </div>
                     ) : theme === 'fallout' ? (
@@ -102,6 +162,7 @@ export default function SysStats({ stats }) {
                             <div className="fo-stat-line"><span className="fo-label">CPU_LOAD:</span><span>{drawFalloutBar(stats.cpu_percent)} {String(stats.cpu_percent).padStart(3, '0')}%</span></div>
                             <div className="fo-stat-line"><span className="fo-label">RAM_ALLOC:</span><span>{drawFalloutBar(stats.ram_percent)} {String(stats.ram_percent).padStart(3, '0')}%</span></div>
                             <div className="fo-stat-line"><span className="fo-label">MEM_PAGES:</span><span>{String(stats.ram_used_mb).padStart(4, '0')}MB / {stats.ram_total_mb}MB</span></div>
+                            <div className="fo-stat-line"><span className="fo-label">STORAGE:</span><span>{drawFalloutBar(stats.disk_percent)} [{stats.disk_percent}%] ({stats.disk_used_gb} GB / {stats.disk_total_gb} GB)</span></div>
                             <div className="fo-stat-line"><span className="fo-label">CORE_TEMP:</span><span className={stats.temp_c > 60 ? 'fo-warning-blink' : ''}>{stats.temp_c > 0 ? `${stats.temp_c} DEG_C` : 'SENSOR_DEAD'}</span></div>
                         </div>
                     ) : theme === 'material' ? (
@@ -118,6 +179,11 @@ export default function SysStats({ stats }) {
                                 <div className="md-stat-header"><span>Memory</span><span>{stats.ram_percent}%</span></div>
                                 <div className="md-progress-track"><div className="md-progress-fill" style={{ width: `${stats.ram_percent}%` }}></div></div>
                                 <div className="md-stat-subtext">{stats.ram_used_mb} MB of {stats.ram_total_mb} MB</div>
+                            </div>
+
+                            <div className="md-stat-group">
+                                <div className="md-stat-header"><span>Storage</span><span>[{stats.disk_percent}%] ({stats.disk_used_gb} GB / {stats.disk_total_gb} GB)</span></div>
+                                <div className="md-progress-track"><div className="md-progress-fill" style={{ width: `${stats.disk_percent}%` }}></div></div>
                             </div>
 
                             <div className="md-stat-group" style={{ marginTop: '10px' }}>
@@ -145,6 +211,13 @@ export default function SysStats({ stats }) {
                                     <span style={{ color: 'var(--accent)' }}>{stats ? stats.ram_percent : 0}%</span>
                                 </div>
                                 {drawY2KBar(stats ? stats.ram_percent : 0)}
+                            </div>
+                            <div className="y2k-stat-row">
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>STORAGE:</span>
+                                    <span style={{ color: 'var(--accent)' }}>[{stats ? stats.disk_percent : 0}%] ({stats ? stats.disk_used_gb : 0} GB / {stats ? stats.disk_total_gb : 0} GB)</span>
+                                </div>
+                                {drawY2KBar(stats ? stats.disk_percent : 0)}
                             </div>
                             <div className="y2k-stat-row">
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -184,6 +257,13 @@ export default function SysStats({ stats }) {
                                 </span>
                             </div>
 
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                <span style={{ color: '#888' }}>[ /dev/root ]</span>
+                                <span style={{ color: stats.disk_percent > 85 ? '#ff5555' : '#00ff00', whiteSpace: 'pre' }}>
+                                    {drawAsciiBar(stats.disk_percent)} [{stats.disk_percent}%] ({stats.disk_used_gb} GB / {stats.disk_total_gb} GB)
+                                </span>
+                            </div>
+
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span style={{ color: '#888' }}>CORE_TEMP</span>
                                 <span style={{ color: stats.temp_c > 75 ? '#ff5555' : '#00ff00' }}>
@@ -199,6 +279,10 @@ export default function SysStats({ stats }) {
                             <div>&gt; THERMAL CORE: {stats.temp_c > 0 ? `${stats.temp_c}°C` : 'SENSOR OFFLINE'}</div>
                             <div>&gt; RAM USAGE: {stats.ram_used_mb}MB / {stats.ram_total_mb}MB</div>
                             <div>&gt; RAM LEVEL: {drawAsciiBar(stats.ram_percent)} {stats.ram_percent}%</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>&gt; STORAGE_DRIVE: {drawAsciiBar(stats.disk_percent)}</span>
+                                <span>[{stats.disk_percent}%] ({stats.disk_used_gb} GB / {stats.disk_total_gb} GB)</span>
+                            </div>
                         </div>
                     )}
                 </div>

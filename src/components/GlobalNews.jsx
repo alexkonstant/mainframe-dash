@@ -28,6 +28,56 @@ export default function GlobalNews() {
         return () => clearInterval(interval);
     }, []);
 
+    if (theme === 'rickmorty') {
+        return (
+            <div className="dashboard-panel global-news" style={{
+                background: 'rgba(10, 15, 20, 0.9)',
+                border: '2px solid #97ce4c',
+                borderRadius: '10px',
+                boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)',
+                marginBottom: '20px',
+                padding: '15px',
+                fontFamily: 'monospace',
+                color: '#97ce4c'
+            }}>
+                <div style={{ marginBottom: '15px', fontWeight: 'bold', fontSize: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>// INTERDIMENSIONAL_CABLE</span>
+                    <button onClick={fetchNews} disabled={isRefreshing} style={{ color: '#97ce4c', background: 'transparent', border: '1px solid #97ce4c', padding: '2px 8px', cursor: isRefreshing ? 'wait' : 'pointer' }}>
+                        {isRefreshing ? 'SYNCING...' : 'SYNC'}
+                    </button>
+                </div>
+
+                <div style={{ fontStyle: 'italic', marginBottom: '15px', opacity: 0.8 }}>
+                    {isRefreshing ? '> Intercepting multiverse broadcasts...' : status || '> Broadcasts decrypted.'}
+                </div>
+
+                {news && news.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {news.map((item, i) => (
+                            <div key={i} style={{ borderBottom: '1px dashed rgba(151, 206, 76, 0.5)', padding: '10px 0', display: 'flex', alignItems: 'flex-start' }}>
+                                <span style={{ marginRight: '10px', flexShrink: 0 }}>&gt; [ BROADCAST ]</span>
+                                <a
+                                    href={item.link || item.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    style={{ color: '#97ce4c', textDecoration: 'none', transition: 'all 0.2s', flex: 1 }}
+                                    onMouseOver={(e) => { e.currentTarget.style.background = '#97ce4c'; e.currentTarget.style.color = 'rgba(10, 15, 20, 0.9)'; e.currentTarget.style.textShadow = '0 0 5px #97ce4c'; }}
+                                    onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#97ce4c'; e.currentTarget.style.textShadow = 'none'; }}
+                                >
+                                    {item.title}
+                                </a>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ fontStyle: 'italic', marginTop: '10px' }}>
+                        {!isRefreshing && '> No broadcasts detected.'}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div
             className={`dashboard-panel global-news ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}

@@ -7,6 +7,7 @@ import socket
 import math
 import time
 import random
+import threading
 from datetime import datetime
 from flask import Flask, send_from_directory, request, jsonify
 from werkzeug.utils import secure_filename
@@ -180,39 +181,53 @@ def media_play_index():
 @app.route('/api/media/upload', methods=['POST'])
 def upload_media():
     try: # Wrapping the ENTIRE route to catch raw crashes
-        if 'file' not in request.files:
-            return jsonify({'status': 'error', 'message': 'No file detected'}), 400
+        if 'files' not in request.files:
+            return jsonify({'status': 'error', 'message': 'No files detected'}), 400
 
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({'status': 'error', 'message': 'Empty filename'}), 400
+        files = request.files.getlist('files')
+        if not files or files[0].filename == '':
+            return jsonify({'status': 'error', 'message': 'Empty filename or no files'}), 400
 
-        if file:
-            # Sanitize the filename without relying on external werkzeug imports
-            safe_filename = file.filename.replace(" ", "_").replace("..", "")
-            save_path = os.path.join(MPD_MUSIC_DIR, safe_filename)
+        clear_queue = request.form.get('clearQueue') == 'true'
+        safe_filenames = []
 
-            # 1. Save the file
-            file.save(save_path)
+        for file in files:
+            if file:
+                # Sanitize the filename without relying on external werkzeug imports
+                safe_filename = file.filename.replace(" ", "_").replace("..", "")
+                save_path = os.path.join(MPD_MUSIC_DIR, safe_filename)
 
-            # 2. SHIELD DROP: Force the file to be readable by the 'mpd' background daemon
-            os.chmod(save_path, 0o644)
+                # 1. Save the file
+                file.save(save_path)
 
-            # 3. Trigger the database update
-            subprocess.run(['mpc', 'update'], check=False)
+                # 2. SHIELD DROP: Force the file to be readable by the 'mpd' background daemon
+                os.chmod(save_path, 0o644)
+                
+                safe_filenames.append(safe_filename)
 
-            # 4. Give the Pi 1 a solid 3 seconds to parse the FLAC file
-            time.sleep(3.0)
+        # 3. Trigger the database update ONCE for the batch
+        subprocess.run(['mpc', 'update'], check=False)
 
-            # 5. Attempt to add to the active queue, but safely catch it if MPD is lagging
-            try:
-                subprocess.run(['mpc', 'add', safe_filename], check=True)
-            except subprocess.CalledProcessError:
-                # The file is saved and will appear in the DB shortly, 
-                # but MPD was too slow to queue it up instantly.
-                pass
+        # 4. Dynamic Sleep for Pi 1 bottleneck
+        time.sleep(max(3.0, len(files) * 0.5))
 
-            return jsonify({'status': 'success', 'filename': safe_filename})
+        # 5. Queue Management
+        if clear_queue:
+            subprocess.run(['mpc', 'clear'], check=False)
+            for safe_filename in safe_filenames:
+                try:
+                    subprocess.run(['mpc', 'add', safe_filename], check=True)
+                except subprocess.CalledProcessError:
+                    pass
+            subprocess.run(['mpc', 'play'], check=False)
+        else:
+            for safe_filename in safe_filenames:
+                try:
+                    subprocess.run(['mpc', 'add', safe_filename], check=True)
+                except subprocess.CalledProcessError:
+                    pass
+
+        return jsonify({'status': 'success', 'filenames': safe_filenames})
 
     except Exception as e:
         # This will print the EXACT reason it crashed in your Raspberry Pi terminal!
@@ -292,6 +307,26 @@ def media_queue_add():
 def media_queue_clear():
     try:
         subprocess.run(['mpc', 'clear'], check=True)
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/api/media/delete', methods=['POST'])
+def media_delete():
+    try:
+        filename = request.json.get('filename')
+        if not filename:
+            return jsonify({'status': 'error', 'message': 'No filename provided'}), 400
+
+        safe_filename = filename.replace(" ", "_").replace("..", "")
+        file_path = os.path.join(MPD_MUSIC_DIR, safe_filename)
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        subprocess.run(['mpc', 'update'], check=False)
+        time.sleep(1.5)
+
         return jsonify({'status': 'success'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
@@ -633,6 +668,22 @@ def master_sync():
         "audio": media_data,
         "network": devices
     })
+
+def initialize_mpd():
+    # The Pi 1 Boot Buffer: Give the OS 20 seconds to fully start the mpd daemon
+    time.sleep(20.0)
+    
+    # Update & Indexing Buffer: Update the library and give the slow CPU 10s to index
+    subprocess.run(['mpc', 'update'], check=False)
+    time.sleep(10.0)
+    
+    # Queue Restoration: Check current playlist and populate if empty
+    result = subprocess.run(['mpc', 'playlist'], capture_output=True, text=True)
+    if not result.stdout.strip():
+        subprocess.run('mpc listall | mpc add', shell=True, check=False)
+
+# Execute the initialization in the background so Flask can boot immediately
+threading.Thread(target=initialize_mpd, daemon=True).start()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)

@@ -45,6 +45,43 @@ export default function Weather() {
         return sun;
     };
 
+    if (theme === 'rickmorty') {
+        return (
+            <div className="dashboard-panel" style={{
+                background: 'rgba(10, 15, 20, 0.9)',
+                border: '2px solid #97ce4c',
+                borderRadius: '10px',
+                boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)',
+                marginBottom: '20px',
+                color: '#97ce4c',
+                fontFamily: 'monospace'
+            }}>
+                <h2 style={{ marginBottom: '15px' }}>// C-137_ATMOSPHERIC_SCANNERS</h2>
+                <div style={{ opacity: 0.8, marginBottom: '15px', fontStyle: 'italic' }}>
+                    {status}
+                </div>
+                <div style={{ border: '1px solid #97ce4c', padding: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #97ce4c', paddingBottom: '4px', marginBottom: '8px' }}>
+                        <span>EXTERNAL_TEMP</span>
+                        <span>{temp !== '--' ? `${temp}°C` : '--'}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #97ce4c', paddingBottom: '4px', marginBottom: '8px' }}>
+                        <span>ATMOSPHERIC_MOISTURE</span>
+                        <span>{humidity !== '--' ? `${humidity}%` : '--'}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #97ce4c', paddingBottom: '4px', marginBottom: '8px' }}>
+                        <span>SOLAR_WIND_VELOCITY</span>
+                        <span>{wind !== '--' ? `${wind} km/h` : '--'}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>ACID_RAIN_PROBABILITY</span>
+                        <span>{isLoaded ? `${precipChance}%` : '--'}</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={`dashboard-panel weather-module ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 

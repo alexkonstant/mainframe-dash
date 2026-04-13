@@ -24,6 +24,31 @@ export default function AgendaSync() {
         return () => clearInterval(interval);
     }, []);
 
+    if (theme === 'rickmorty') {
+        return (
+            <div className="dashboard-panel agenda-sync" style={{
+                background: 'rgba(10, 15, 20, 0.9)',
+                border: '2px solid #97ce4c',
+                borderRadius: '10px',
+                boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)',
+                marginBottom: '20px',
+                padding: '20px',
+                fontFamily: 'monospace',
+                color: '#97ce4c'
+            }}>
+                <div style={{ marginBottom: '15px', fontWeight: 'bold', fontSize: '1.2rem' }}>// MULTIVERSE_TIMELINE</div>
+                {agenda && agenda.length > 0 ? agenda.map((item, i) => (
+                    <div key={i} style={{ display: 'flex', borderBottom: '1px dashed #97ce4c', padding: '10px 0' }}>
+                        <span style={{ color: '#e4a788', width: '120px', flexShrink: 0 }}>{item.display || '??/??'}</span>
+                        <span style={{ flex: 1 }}>{item.summary || 'UNKNOWN_EVENT'}</span>
+                    </div>
+                )) : (
+                    <div style={{ fontStyle: 'italic', marginTop: '10px' }}> No temporal disturbances detected.</div>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className={`dashboard-panel agenda-sync ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 

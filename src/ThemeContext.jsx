@@ -5,7 +5,7 @@ export const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState(localStorage.getItem('theme') || 'default');
 
-    const themes = ['default', '90s', 'cyberpunk', 'fallout', 'material', 'y2k', 'cli', 'system7'];
+    const themes = ['default', '90s', 'cyberpunk', 'fallout', 'material', 'y2k', 'cli', 'system7', 'rickmorty'];
 
     useEffect(() => {
         // Reverting back to the exact class names your old CSS expects

@@ -59,6 +59,59 @@ export default function BluetoothManager() {
     }
   };
 
+  if (theme === 'rickmorty') {
+      return (
+          <div style={{ background: 'rgba(10, 15, 20, 0.9)', border: '2px solid #97ce4c', borderRadius: '10px', boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)', marginBottom: '20px', padding: '15px', color: '#97ce4c', fontFamily: "'Courier New', Courier, monospace", display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 'bold' }}>// INTERDIMENSIONAL_PAIRING</div>
+                  <button 
+                      onClick={() => setIsExpanded(!isExpanded)}
+                      style={{ background: 'transparent', border: '2px solid #97ce4c', color: '#97ce4c', fontFamily: "'Courier New', Courier, monospace", cursor: 'pointer', padding: '5px 10px', fontWeight: 'bold' }}
+                  >
+                      {isExpanded ? '[ DONE ]' : '[ MANAGE ]'}
+                  </button>
+              </div>
+              
+              <div style={{ opacity: 0.8, color: status === 'CONNECTED' && connectedName ? '#97ce4c' : 'inherit' }}>
+                  {status === 'CONNECTED' && connectedName 
+                      ? `> TARGET: ${connectedName.toUpperCase()}` 
+                      : `> STATUS: ${status}`}
+              </div>
+
+              {isExpanded && (
+                  <div style={{ borderTop: '1px dashed #97ce4c', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <button 
+                          onClick={scanDevices} 
+                          disabled={isScanning}
+                          style={{ width: '100%', padding: '8px', cursor: isScanning ? 'wait' : 'pointer', background: 'transparent', color: '#97ce4c', border: '1px solid #97ce4c', fontFamily: "'Courier New', Courier, monospace", fontWeight: 'bold' }}
+                      >
+                          {isScanning ? 'CALIBRATING_PORTAL...' : 'INITIATE_SWEEP'}
+                      </button>
+
+                      {devices.length > 0 && (
+                          <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                              {devices.map((dev) => (
+                                  <div key={dev.mac} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(151, 206, 76, 0.3)', paddingBottom: '5px' }}>
+                                      <div style={{ overflow: 'hidden' }}>
+                                          <div style={{ fontWeight: 'bold', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{dev.name || 'UNKNOWN_DIMENSION'}</div>
+                                          <div style={{ fontSize: '0.8em', opacity: 0.6 }}>{dev.mac}</div>
+                                      </div>
+                                      <button 
+                                          onClick={() => connectDevice(dev.mac)}
+                                          style={{ marginLeft: '10px', padding: '5px 15px', cursor: 'pointer', border: '1px solid #97ce4c', background: '#97ce4c', color: 'rgba(10, 15, 20, 0.9)', fontFamily: "'Courier New', Courier, monospace", fontWeight: 'bold' }}
+                                      >
+                                          LINK
+                                      </button>
+                                  </div>
+                              ))}
+                          </div>
+                      )}
+                  </div>
+              )}
+          </div>
+      );
+  }
+
   return (
       <div className={`dashboard-panel ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 

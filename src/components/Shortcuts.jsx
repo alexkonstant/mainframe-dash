@@ -67,6 +67,76 @@ export default function Shortcuts() {
         syncToHardware(updatedLinks);
     };
 
+    if (theme === 'rickmorty') {
+        const rmStatus = status === "> Directory loaded." ? "> Portal gun calibrated..." : status;
+        return (
+            <div style={{ background: 'rgba(10, 15, 20, 0.9)', border: '2px solid #97ce4c', borderRadius: '10px', boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)', marginBottom: '20px', padding: '15px', color: '#97ce4c', fontFamily: "'Courier New', Courier, monospace", display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>// MULTIVERSE_PORTAL_COORDINATES</div>
+                    <button 
+                        onClick={() => setIsEditing(!isEditing)}
+                        style={{ background: 'transparent', border: '2px solid #97ce4c', color: '#97ce4c', fontFamily: "'Courier New', Courier, monospace", cursor: 'pointer', padding: '5px 10px', fontWeight: 'bold' }}
+                    >
+                        {isEditing ? '[ DONE ]' : '[ EDIT ]'}
+                    </button>
+                </div>
+                
+                <div style={{ opacity: 0.8 }}>{rmStatus}</div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    {links.map((link, i) => (
+                        <div key={i} style={{ position: 'relative' }}>
+                            {isEditing && (
+                                <button 
+                                    onClick={() => handleDelete(i)} 
+                                    style={{ position: 'absolute', top: -5, right: -5, background: 'rgba(10, 15, 20, 0.9)', color: '#97ce4c', border: '1px solid #97ce4c', cursor: 'pointer', fontWeight: 'bold', zIndex: 10, padding: '2px 5px' }}
+                                >
+                                    X
+                                </button>
+                            )}
+                            <a 
+                                href={link.url} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                style={{ display: 'block', padding: '10px', border: '1px solid #97ce4c', color: '#97ce4c', background: 'rgba(10, 15, 20, 0.9)', textDecoration: 'none', textAlign: 'center', fontWeight: 'bold', textTransform: 'uppercase', transition: 'all 0.2s' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.background = '#97ce4c'; e.currentTarget.style.color = 'rgba(10, 15, 20, 0.9)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(10, 15, 20, 0.9)'; e.currentTarget.style.color = '#97ce4c'; }}
+                            >
+                                {link.name || 'TARGET'}
+                            </a>
+                        </div>
+                    ))}
+                </div>
+
+                {isEditing && (
+                    <form onSubmit={handleAdd} style={{ marginTop: '15px', borderTop: '1px dashed #97ce4c', paddingTop: '15px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div style={{ fontWeight: 'bold' }}>// INJECT_NEW_COORDINATES</div>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <input 
+                                value={newName} 
+                                onChange={e => setNewName(e.target.value)} 
+                                placeholder="DIMENSION" 
+                                style={{ background: 'transparent', border: '1px solid #97ce4c', color: '#97ce4c', padding: '5px', width: '30%', fontFamily: "'Courier New', Courier, monospace", outline: 'none' }} 
+                            />
+                            <input 
+                                value={newUrl} 
+                                onChange={e => setNewUrl(e.target.value)} 
+                                placeholder="COORDINATES" 
+                                style={{ background: 'transparent', border: '1px solid #97ce4c', color: '#97ce4c', padding: '5px', flex: 1, fontFamily: "'Courier New', Courier, monospace", outline: 'none' }} 
+                            />
+                            <button 
+                                type="submit" 
+                                style={{ background: '#97ce4c', color: 'rgba(10, 15, 20, 0.9)', border: '1px solid #97ce4c', cursor: 'pointer', fontWeight: 'bold', padding: '5px 15px', fontFamily: "'Courier New', Courier, monospace" }}
+                            >
+                                ADD
+                            </button>
+                        </div>
+                    </form>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className={`dashboard-panel shortcuts-module ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 
@@ -147,6 +217,10 @@ export default function Shortcuts() {
                 </div>
             ) : theme === 'system7' ? (
                 <div className="s7-content" style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', color: '#000' }}>
+                    <style>{`
+                        .s7-shortcut:hover .s7-icon { filter: invert(1); }
+                        .s7-shortcut:hover .s7-label { background: #000; color: #fff; }
+                    `}</style>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
                         <button
                             onClick={() => setIsEditing(!isEditing)}
@@ -158,29 +232,32 @@ export default function Shortcuts() {
                             {isEditing ? 'Done' : 'Edit'}
                         </button>
                     </div>
-                    <div style={{ border: '1px solid #000', background: '#fff', padding: '2px' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', padding: '15px', border: '1px solid #000', background: '#fff' }}>
                         {links.length > 0 ? links.map((link, i) => (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', borderBottom: i === links.length - 1 ? 'none' : '1px dotted #000', padding: '4px 2px' }}>
+                            <div key={i} style={{ position: 'relative' }}>
                                 {isEditing && (
                                     <button 
                                         onClick={() => handleDelete(i)} 
                                         onMouseDown={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translate(1px, 1px)'; }}
                                         onMouseUp={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
                                         onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '1px 1px 0px #000'; e.currentTarget.style.transform = 'none'; }}
-                                        style={{ border: '1px solid #000', borderRadius: '4px', background: '#fff', color: '#000', boxShadow: '1px 1px 0px #000', fontFamily: "'Geneva', sans-serif", padding: '0 4px', cursor: 'pointer', fontSize: '9px', transition: 'none', marginRight: '8px' }}
+                                        style={{ position: 'absolute', top: -5, right: -5, border: '1px solid #000', borderRadius: '4px', background: '#fff', color: '#000', boxShadow: '1px 1px 0px #000', fontFamily: "'Geneva', sans-serif", padding: '0 4px', cursor: 'pointer', fontSize: '9px', transition: 'none', zIndex: 10 }}
                                     >
                                         DEL
                                     </button>
                                 )}
-                                <span style={{ width: '12px', height: '12px', border: '1px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '8px', fontSize: '8px' }}>
-                                    ■
-                                </span>
-                                <a href={link.url} target="_blank" rel="noreferrer" style={{ flexGrow: 1, textDecoration: 'none', color: '#000', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {link.name || 'LINK'}
+                                <a href={link.url} target="_blank" rel="noreferrer" className="s7-shortcut" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', width: '64px', textDecoration: 'none', color: '#000' }}>
+                                    <svg className="s7-icon" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style={{ shapeRendering: 'crispEdges' }}>
+                                        <path d="M4 6h10v2h4v2h10v16H4V6z" fill="#fff" stroke="#000" strokeWidth="1" />
+                                        <path d="M4 10h24" stroke="#000" strokeWidth="1" />
+                                    </svg>
+                                    <span className="s7-label" style={{ fontFamily: "'Geneva', sans-serif", fontSize: '11px', textAlign: 'center', marginTop: '4px', padding: '0 2px', lineHeight: '1.2' }}>
+                                        {link.name || 'LINK'}
+                                    </span>
                                 </a>
                             </div>
                         )) : (
-                            <div style={{ padding: '4px 2px', fontStyle: 'italic' }}>No items found.</div>
+                            <div style={{ padding: '15px', fontStyle: 'italic' }}>No items found.</div>
                         )}
                     </div>
                 </div>

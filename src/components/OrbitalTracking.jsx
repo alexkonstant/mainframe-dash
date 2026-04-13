@@ -24,6 +24,48 @@ export default function OrbitalTracking() {
         return () => clearInterval(interval);
     }, []);
 
+    if (theme === 'rickmorty') {
+        return (
+            <div style={{
+                gridColumn: '1 / -1',
+                background: 'rgba(10, 15, 20, 0.9)',
+                border: '2px solid #97ce4c',
+                borderRadius: '10px',
+                boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)',
+                marginBottom: '20px',
+                padding: '15px',
+                fontFamily: 'monospace',
+                color: '#97ce4c'
+            }}>
+                <div style={{ marginBottom: '15px', fontWeight: 'bold', fontSize: '1.2rem' }}>// GALACTIC_FEDERATION_SATELLITE</div>
+                {issData ? (
+                    <>
+                        <div style={{ marginBottom: '15px', color: '#97ce4c' }}>&gt; ORBITAL_LOCK_ESTABLISHED</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed rgba(151, 206, 76, 0.5)', paddingBottom: '10px', marginBottom: '10px' }}>
+                            <span>SPATIAL_COORDINATES</span>
+                            <span>LAT: {parseFloat(issData.lat).toFixed(4)} // LON: {parseFloat(issData.lon).toFixed(4)}</span>
+                        </div>
+                        {issData.distance && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed rgba(151, 206, 76, 0.5)', paddingBottom: '10px', marginBottom: '15px' }}>
+                                <span>PROXIMITY_TO_C-137</span>
+                                <span>{parseFloat(issData.distance).toFixed(2)} KM</span>
+                            </div>
+                        )}
+                        <div style={{ height: '350px', border: '1px solid #97ce4c', borderRadius: '5px', overflow: 'hidden' }}>
+                            <iframe
+                                width="100%" height="100%" frameBorder="0" scrolling="no" marginHeight="0" marginWidth="0"
+                                src={`https://www.openstreetmap.org/export/embed.html?bbox=${issData.lon - 20},${issData.lat - 15},${issData.lon + 20},${issData.lat + 15}&layer=mapnik&marker=${issData.lat},${issData.lon}`}
+                                style={{ display: 'block', minHeight: '100%', filter: 'invert(100%) sepia(100%) hue-rotate(50deg) saturate(500%) brightness(0.8) contrast(1.5)' }}
+                            ></iframe>
+                        </div>
+                    </>
+                ) : (
+                    <div style={{ fontStyle: 'italic', marginTop: '10px' }}>&gt; Calibrating portal coordinates...</div>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className={`dashboard-panel orbital-tracking ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`} style={{ gridColumn: '1 / -1' }}>
 

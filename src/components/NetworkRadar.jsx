@@ -24,6 +24,49 @@ export default function NetworkRadar() {
         return () => clearInterval(interval);
     }, []);
 
+    if (theme === 'rickmorty') {
+        let displayStatus = status;
+        if (status === '> Topography mapped.') {
+            displayStatus = '> Scanning for Galactic Federation presence...';
+        }
+        return (
+            <div className="dashboard-panel" style={{
+                background: 'rgba(10, 15, 20, 0.9)',
+                border: '2px solid #97ce4c',
+                borderRadius: '10px',
+                boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)',
+                marginBottom: '20px',
+                color: '#97ce4c',
+                fontFamily: 'monospace'
+            }}>
+                <h2 style={{ marginBottom: '15px' }}>// FEDERATION_TRACKING_GRID</h2>
+                <div style={{ opacity: 0.8, marginBottom: '15px', fontStyle: 'italic' }}>
+                    {displayStatus}
+                </div>
+                {radar ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {radar.map((node, i) => {
+                            const isOnline = node.status === 'ONLINE';
+                            return (
+                                <div key={i} style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    color: isOnline ? '#97ce4c' : '#f0e14a',
+                                    animation: isOnline ? 'none' : 'blink 1s step-end infinite'
+                                }}>
+                                    <span>{node.name.toUpperCase()}</span>
+                                    <span>{isOnline ? 'ONLINE' : 'ERR_FAIL'}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div style={{ opacity: 0.5 }}>&gt; AWAITING PORTAL DATA...</div>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className={`dashboard-panel network-radar ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 

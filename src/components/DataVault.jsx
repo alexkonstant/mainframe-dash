@@ -24,6 +24,65 @@ export default function DataVault() {
         return () => clearInterval(interval);
     }, []);
 
+    if (theme === 'rickmorty') {
+        return (
+            <div className="dashboard-panel data-vault" style={{
+                background: 'rgba(10, 15, 20, 0.9)',
+                border: '2px solid #97ce4c',
+                borderRadius: '10px',
+                boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)',
+                marginBottom: '20px',
+                padding: '20px',
+                fontFamily: 'monospace',
+                color: '#97ce4c'
+            }}>
+                <style>{`
+                    .data-vault textarea, .data-vault input {
+                        background: transparent;
+                        border: 1px solid #97ce4c;
+                        color: #97ce4c;
+                        font-family: monospace;
+                        outline: none;
+                        transition: box-shadow 0.2s;
+                    }
+                    .data-vault textarea:focus, .data-vault input:focus {
+                        box-shadow: 0 0 10px rgba(151, 206, 76, 0.8);
+                    }
+                    .data-vault button {
+                        background: rgba(10, 15, 20, 0.9);
+                        border: 1px solid #97ce4c;
+                        color: #97ce4c;
+                        font-family: monospace;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    }
+                    .data-vault button:hover {
+                        background: #97ce4c;
+                        color: rgba(10, 15, 20, 0.9);
+                    }
+                `}</style>
+                <div style={{ marginBottom: '15px', fontWeight: 'bold', fontSize: '1.2rem' }}>// RICK_OS_SECURE_ARCHIVE</div>
+                {lore ? (
+                    <div>
+                        <div style={{ color: '#97ce4c', textShadow: '0 0 5px rgba(151, 206, 76, 0.5)', marginBottom: '10px' }}>
+                            &gt; DECRYPTED_FILE: [{lore.tag}]
+                        </div>
+                        <div style={{ fontStyle: 'italic', lineHeight: '1.5' }}>
+                            "{lore.text}"
+                        </div>
+                        <div style={{ marginTop: '10px', opacity: 0.8 }}>
+                            -- {lore.author}
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{ fontStyle: 'italic', marginTop: '10px' }}>
+                        &gt; BRUTEFORCING ENCRYPTION...
+                    </div>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className={`dashboard-panel data-vault ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}>
 

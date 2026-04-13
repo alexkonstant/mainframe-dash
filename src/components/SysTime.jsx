@@ -10,6 +10,20 @@ export default function SysTime() {
         return () => clearInterval(timer);
     }, []);
 
+    if (theme === 'rickmorty') {
+        return (
+            <div style={{ background: 'rgba(10, 15, 20, 0.9)', border: '2px solid #97ce4c', borderRadius: '10px', boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)', padding: '20px', color: '#97ce4c', fontFamily: "'Courier New', Courier, monospace", display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                <div style={{ fontWeight: 'bold' }}>[ UNIVERSE_ID: C-137 ]</div>
+                <div style={{ fontSize: '2.5em', fontWeight: 'bold', letterSpacing: '2px', textAlign: 'center' }}>
+                    {time.toLocaleTimeString('en-US', { hour12: false })}
+                </div>
+                <div style={{ textAlign: 'center', opacity: 0.8, textTransform: 'uppercase' }}>
+                    {time.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={`dashboard-panel sys-time ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel md-panel-accent' : theme === 'system7' ? 's7-panel' : ''}`}>
             {theme === 'system7' ? (

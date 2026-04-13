@@ -4,16 +4,45 @@ import { ThemeContext } from '../ThemeContext';
 export default function MediaDeck({ audioData }) {
   const { theme } = useContext(ThemeContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('QUEUE'); // QUEUE, LIBRARY, PLAYLISTS
   const [playlist, setPlaylist] = useState([]);
   const [library, setLibrary] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadCount, setUploadCount] = useState(0);
+  const [clearQueueOnUpload, setClearQueueOnUpload] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const fileInputRef = useRef(null);
 
+  const [isRestarting, setIsRestarting] = useState(false);
+
   // Fallback if the master sync hasn't arrived
-  const status = audioData || { track: 'Establishing link...', state: 'stopped', volume: '100%' };
+  const rawStatus = audioData || { track: 'Establishing link...', state: 'stopped', volume: '100%' };
+  const status = isRestarting ? { ...rawStatus, track: '[ RESTARTING DAEMON... ]' } : rawStatus;
+
+  const fetchStatus = async () => {
+    try { await fetch('/api/media/status'); } catch (e) {}
+  };
+
+  const fetchPlaylist = async () => {
+    await fetchQueue();
+  };
+
+  const restartMPD = async () => {
+    setIsRestarting(true);
+    try {
+      const res = await fetch('/api/media/restart', { method: 'POST' });
+      if (res.ok) {
+        await fetchStatus();
+        await fetchPlaylist();
+      }
+    } catch (e) {
+      console.error("Restart MPD failed", e);
+    } finally {
+      setIsRestarting(false);
+    }
+  };
 
   const fetchQueue = async () => {
     try {
@@ -40,15 +69,15 @@ export default function MediaDeck({ audioData }) {
   };
 
   useEffect(() => {
-    if (isModalOpen) {
+    if (isModalOpen || isExpanded) {
       fetchQueue();
       fetchLibrary();
       fetchPlaylists();
     }
-  }, [isModalOpen]);
+  }, [isModalOpen, isExpanded]);
 
   useEffect(() => {
-    if (isModalOpen && activeTab === 'QUEUE') fetchQueue();
+    if ((isModalOpen && activeTab === 'QUEUE') || isExpanded) fetchQueue();
   }, [status.track]);
 
   const togglePlay = async () => {
@@ -85,6 +114,20 @@ export default function MediaDeck({ audioData }) {
     } catch (e) { console.error("Clear queue failed", e); }
   };
 
+  const deleteTrack = async (filename) => {
+    try {
+      const res = await fetch('/api/media/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename })
+      });
+      if (res.ok) {
+        fetchQueue();
+        fetchLibrary();
+      }
+    } catch (e) { console.error("Delete track failed", e); }
+  };
+
   const loadPlaylist = async (name) => {
     try {
       await fetch('/api/media/playlists/load', {
@@ -111,12 +154,16 @@ export default function MediaDeck({ audioData }) {
   };
 
   const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setIsUploading(true);
+    setUploadCount(files.length);
     const formData = new FormData();
-    formData.append('file', file);
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+    formData.append('clearQueue', clearQueueOnUpload);
 
     try {
       const res = await fetch('/api/media/upload', { method: 'POST', body: formData });
@@ -127,6 +174,7 @@ export default function MediaDeck({ audioData }) {
       console.error("Upload failed", err);
     } finally {
       setIsUploading(false);
+      setUploadCount(0);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -200,6 +248,65 @@ export default function MediaDeck({ audioData }) {
       );
     }
 
+    if (theme === 'cyberpunk') {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', background: 'rgba(9, 10, 15, 0.85)', border: '1px solid var(--accent)', boxShadow: '0 0 10px rgba(255, 0, 85, 0.2)' }}>
+          <div style={{ padding: '10px' }}>
+            <div style={{ fontSize: '10px', color: 'var(--accent)', fontWeight: 'bold', textShadow: '0 0 5px var(--accent)', marginBottom: '8px' }}>[ AUDIO_UPLINK ]</div>
+            <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '12px', marginBottom: '10px', color: '#fff' }}>
+              {status.track}
+            </div>
+            <div style={{ display: 'flex', gap: '5px' }}>
+              <button onClick={togglePlay} style={{ flex: 1, background: 'transparent', border: '1px solid var(--accent)', color: 'var(--accent)', fontSize: '10px', padding: '6px', cursor: 'pointer', fontWeight: 'bold', clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}>
+                [ {status.state === 'playing' ? 'PAUSE' : 'PLAY'} ]
+              </button>
+              <button onClick={nextTrack} style={{ flex: 1, background: 'transparent', border: '1px solid var(--accent)', color: 'var(--accent)', fontSize: '10px', padding: '6px', cursor: 'pointer', fontWeight: 'bold', clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}>
+                [ SKIP ]
+              </button>
+              <button onClick={() => setIsExpanded(!isExpanded)} style={{ flex: 1, background: isExpanded ? 'var(--accent)' : 'transparent', border: '1px solid var(--accent)', color: isExpanded ? '#000' : 'var(--accent)', fontSize: '10px', padding: '6px', cursor: 'pointer', fontWeight: 'bold', clipPath: 'polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px)' }}>
+                [ DATABASE ]
+              </button>
+            </div>
+          </div>
+          
+          {isExpanded && (
+            <div style={{ maxHeight: '180px', overflowY: 'auto', borderTop: '1px solid var(--accent)' }}>
+              <div style={{ padding: '10px', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,0,85,0.2)', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="audio/*" multiple style={{ display: 'none' }} id="cp-audio-upload" />
+                  <label htmlFor="cp-audio-upload" style={{ background: 'transparent', border: '1px solid var(--accent)', color: 'var(--accent)', fontSize: '9px', padding: '2px 5px', cursor: 'pointer' }}>
+                    {isUploading ? `[ UPLOADING... ]` : '[ UPLOAD ]'}
+                  </label>
+                  <button onClick={restartMPD} style={{ background: 'transparent', border: '1px solid var(--accent)', color: 'var(--accent)', fontSize: '9px', padding: '2px 5px', cursor: 'pointer' }}>
+                    [ RESTART_MPD ]
+                  </button>
+                </div>
+              </div>
+              <div style={{ padding: '10px' }}>
+                {playlist.length === 0 ? (
+                  <div style={{ color: 'var(--accent)', fontSize: '10px', opacity: 0.5 }}>NO_DATA_FOUND</div>
+                ) : (
+                  playlist.map((track, i) => {
+                    const isPlaying = status.track === track;
+                    return (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px', marginBottom: '2px', background: isPlaying ? 'var(--accent)' : 'transparent', color: isPlaying ? '#000' : 'rgba(255,0,85,0.6)', fontWeight: isPlaying ? 'bold' : 'normal', fontSize: '10px', border: isPlaying ? 'none' : '1px solid rgba(255,0,85,0.2)', cursor: 'pointer' }}>
+                        <div onClick={() => playIndex(i + 1)} style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {i + 1}. {track}
+                        </div>
+                        <button onClick={(e) => { e.stopPropagation(); deleteTrack(track); }} style={{ background: 'transparent', border: 'none', color: isPlaying ? '#000' : 'var(--accent)', cursor: 'pointer', fontSize: '10px', marginLeft: '5px' }}>
+                          [X]
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     if (theme === 'system7') {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -220,6 +327,28 @@ export default function MediaDeck({ audioData }) {
             </button>
             <button onClick={() => setIsModalOpen(true)} style={{ border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer', marginLeft: 'auto' }}>
               [ OPEN ]
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (theme === 'rickmorty') {
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', background: '#0d1117', border: '2px solid #97ce4c', borderRadius: '15px', boxShadow: '0 0 15px rgba(151, 206, 76, 0.4)', padding: '15px' }}>
+          <div style={{ fontSize: '14px', color: '#97ce4c', fontWeight: 'bold', marginBottom: '8px', textShadow: '0 0 5px rgba(151, 206, 76, 0.4)' }}>// PORTAL_UPLINK</div>
+          <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '14px', marginBottom: '10px', color: '#97ce4c' }}>
+            {status.track}
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button onClick={togglePlay} style={{ flex: 1, background: '#0d1117', border: '2px solid #97ce4c', color: '#97ce4c', fontSize: '12px', padding: '8px', cursor: 'pointer', fontWeight: 'bold', borderRadius: '8px' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#97ce4c'; e.currentTarget.style.color = '#0d1117'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#0d1117'; e.currentTarget.style.color = '#97ce4c'; }}>
+              [ {status.state === 'playing' ? 'PAUSE' : 'PLAY'} ]
+            </button>
+            <button onClick={nextTrack} style={{ flex: 1, background: '#0d1117', border: '2px solid #97ce4c', color: '#97ce4c', fontSize: '12px', padding: '8px', cursor: 'pointer', fontWeight: 'bold', borderRadius: '8px' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#97ce4c'; e.currentTarget.style.color = '#0d1117'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#0d1117'; e.currentTarget.style.color = '#97ce4c'; }}>
+              [ SKIP_DIMENSION ]
+            </button>
+            <button onClick={() => setIsModalOpen(true)} style={{ flex: 1, background: '#0d1117', border: '2px solid #e4a788', color: '#e4a788', fontSize: '12px', padding: '8px', cursor: 'pointer', fontWeight: 'bold', borderRadius: '8px' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#e4a788'; e.currentTarget.style.color = '#0d1117'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#0d1117'; e.currentTarget.style.color = '#e4a788'; }}>
+              [ OPEN_PORTAL ]
             </button>
           </div>
         </div>
@@ -288,7 +417,8 @@ export default function MediaDeck({ audioData }) {
         background: '#000',
         border: '1px dashed var(--accent)',
         borderRadius: 0,
-        fontFamily: 'var(--font)'
+        fontFamily: 'var(--font)',
+        overflow: 'visible'
       };
     } else if (theme === '90s') {
       modalBoxStyle = {
@@ -347,6 +477,16 @@ export default function MediaDeck({ audioData }) {
         border: 'none',
         boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
       };
+    } else if (theme === 'rickmorty') {
+      modalBoxStyle = {
+        ...modalBoxStyle,
+        background: '#0d1117',
+        border: '2px solid #97ce4c',
+        borderRadius: '15px',
+        color: '#97ce4c',
+        boxShadow: '0 0 15px rgba(151, 206, 76, 0.4)',
+        fontFamily: "'Courier New', Courier, monospace"
+      };
     }
 
     const closeBtn = () => {
@@ -391,6 +531,26 @@ export default function MediaDeck({ audioData }) {
 
           return <div key={tab} onClick={() => setActiveTab(tab)} style={style}>{tab}</div>;
         })}
+        <button 
+          onClick={restartMPD} 
+          className={theme === 'cyberpunk' ? 'cp-btn' : theme === 'material' ? 'md-btn-tonal' : theme === 'fallout' ? 'fo-edit-btn' : ''}
+          style={{
+            marginLeft: 'auto',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            padding: theme === 'system7' ? '2px 8px' : '8px 15px',
+            fontFamily: theme === 'system7' ? 'Geneva, sans-serif' : 'inherit',
+            background: theme === 'system7' ? '#fff' : theme === '90s' ? '#c0c0c0' : 'transparent',
+            color: theme === 'system7' ? '#000' : theme === '90s' ? '#000' : theme === 'material' ? 'var(--text)' : 'var(--accent)',
+            border: theme === 'system7' ? '1px solid #000' : theme === '90s' ? '2px outset' : theme === 'cyberpunk' || theme === 'material' ? 'none' : '1px solid var(--accent)',
+            borderRadius: theme === 'material' ? '20px' : theme === 'system7' ? '4px' : '0',
+            boxShadow: theme === 'system7' ? '1px 1px 0px #000' : 'none'
+          }}
+          disabled={isRestarting}
+        >
+          {theme === 'cli' || theme === 'fallout' ? '[ RESTART DAEMON ]' : 'Restart MPD'}
+        </button>
       </div>
     );
 
@@ -401,6 +561,9 @@ export default function MediaDeck({ audioData }) {
           <button onClick={clearQueue} className={btnClass} style={theme === 'system7' ? { border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer' } : btnStyle}>{theme === 'cli' ? '[ CLEAR ]' : 'Clear Queue'}</button>
         </div>
         <div style={theme === 'system7' ? { border: '1px solid #000', background: '#fff', padding: '2px', fontFamily: 'Geneva, sans-serif', fontSize: '11px', color: '#000' } : {}}>
+          {playlist.length === 0 && theme === 'rickmorty' && (
+             <div style={{ padding: '20px', textAlign: 'center', color: '#e4a788' }}>[ WUBBA LUBBA DUB DUB - QUEUE IS EMPTY ]</div>
+          )}
           {playlist.map((track, i) => {
             const isActive = status.track === track;
             let itemStyle = { padding: '8px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center' };
@@ -414,6 +577,12 @@ export default function MediaDeck({ audioData }) {
                 <span style={{ marginRight: '10px', opacity: theme === 'system7' ? 1 : 0.5 }}>{String(i + 1).padStart(2, '0')}</span>
                 <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{track}</span>
                 {isActive && <span style={{ color: theme === 'system7' ? '#fff' : 'var(--accent)' }}>▶</span>}
+                <button
+                  onClick={(e) => { e.stopPropagation(); deleteTrack(track); }}
+                  style={theme === 'system7' ? { border: '1px solid #000', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva, sans-serif', fontSize: '10px', padding: '1px 5px', cursor: 'pointer', marginLeft: '10px' } : { background: 'transparent', border: '1px solid var(--accent)', color: 'var(--accent)', fontSize: '10px', padding: '1px 5px', cursor: 'pointer', marginLeft: '10px' }}
+                >
+                  [ X ]
+                </button>
               </div>
             );
           })}
@@ -437,10 +606,14 @@ export default function MediaDeck({ audioData }) {
       <div style={{ flex: 1, overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
           <div style={{ fontSize: '14px', fontWeight: 'bold' }}>File Library</div>
-          <div>
-            <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="audio/*" style={{ display: 'none' }} id="modal-audio-upload" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontFamily: theme === 'system7' ? 'Geneva, sans-serif' : 'inherit', border: theme === 'system7' ? '1px solid #000' : 'none', padding: theme === 'system7' ? '2px 4px' : '0', background: theme === 'system7' ? '#fff' : 'transparent', color: theme === 'system7' ? '#000' : 'inherit', cursor: 'pointer' }}>
+              <input type="checkbox" checked={clearQueueOnUpload} onChange={e => setClearQueueOnUpload(e.target.checked)} style={theme === 'system7' ? { margin: 0 } : {}} />
+              Clear queue and play batch
+            </label>
+            <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="audio/*" multiple style={{ display: 'none' }} id="modal-audio-upload" />
             <label htmlFor="modal-audio-upload" className={btnClass} style={theme === 'system7' ? { border: '1px solid #000', borderRadius: '4px', boxShadow: '1px 1px 0px #000', background: '#fff', color: '#000', fontFamily: 'Geneva', padding: '2px 8px', cursor: 'pointer', display: 'inline-block', opacity: isUploading ? 0.5 : 1 } : { ...btnStyle, display: 'inline-block', opacity: isUploading ? 0.5 : 1 }}>
-              {isUploading ? 'UPLOADING...' : 'UPLOAD NEW'}
+              {isUploading ? `[ UPLOADING ${uploadCount} FILES... ]` : 'UPLOAD NEW'}
             </label>
           </div>
         </div>
@@ -469,9 +642,16 @@ export default function MediaDeck({ audioData }) {
       </div>
     );
 
+    const ModalWrapper = theme === 'cli' ? 'fieldset' : 'div';
+
     return (
       <div style={overlayStyle} onClick={() => setIsModalOpen(false)}>
-        <div style={modalBoxStyle} className="modal-animate" onClick={e => e.stopPropagation()}>
+        <ModalWrapper style={modalBoxStyle} className="modal-animate" onClick={e => e.stopPropagation()}>
+          {theme === 'cli' && (
+            <legend style={{ padding: '0 10px', color: '#fff', backgroundColor: 'transparent', margin: 0, fontSize: '18px' }}>
+              MAINFRAME // MEDIA_CENTER
+            </legend>
+          )}
           {theme === 'system7' && (
             <div style={{ height: '20px', border: '1px solid #000', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', marginBottom: '10px', background: 'repeating-linear-gradient(0deg, #000, #000 1px, transparent 1px, transparent 2px)' }}>
               {closeBtn()}
@@ -485,8 +665,12 @@ export default function MediaDeck({ audioData }) {
             </div>
           )}
           {theme !== 'system7' && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              {theme !== '90s' && <h2 style={{ margin: 0, fontSize: '18px' }}>{theme === 'cli' ? 'MAINFRAME // MEDIA_CENTER' : 'Media Center'}</h2>}
+            <div style={{ display: 'flex', justifyContent: theme === 'cli' ? 'flex-end' : 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              {theme !== '90s' && theme !== 'cli' && (
+                <h2 style={{ margin: 0, fontSize: '18px' }}>
+                  Media Center
+                </h2>
+              )}
               {theme !== '90s' && closeBtn()}
             </div>
           )}
@@ -507,7 +691,7 @@ export default function MediaDeck({ audioData }) {
               </div>
             )}
           </div>
-        </div>
+        </ModalWrapper>
       </div>
     );
   };
@@ -519,7 +703,7 @@ export default function MediaDeck({ audioData }) {
               <span className="s7-title-text">Media Player</span>
           </div>
       )}
-      {theme !== 'cli' && theme !== 'system7' && (
+      {theme !== 'cli' && theme !== 'system7' && theme !== 'rickmorty' && (
         <h2 style={{ margin: '0 0 15px 0' }}>
           {theme === '90s' ? 'Media Player' :
            theme === 'cyberpunk' ? 'AUDIO_UPLINK // MPD' :

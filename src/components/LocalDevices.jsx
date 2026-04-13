@@ -12,6 +12,54 @@ export default function LocalDevices({ devices = [] }) {
         setTimeout(() => setIsScanning(false), 1500);
     };
 
+    if (theme === 'rickmorty') {
+        return (
+            <div className="dashboard-panel local-devices" style={{
+                background: 'rgba(10, 15, 20, 0.9)',
+                border: '2px solid #97ce4c',
+                borderRadius: '10px',
+                boxShadow: '0 0 10px rgba(151, 206, 76, 0.4)',
+                marginBottom: '20px',
+                padding: '15px',
+                fontFamily: 'monospace',
+                color: '#97ce4c'
+            }}>
+                <div style={{ marginBottom: '15px', fontWeight: 'bold', fontSize: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>// MICROVERSE_ENTITIES_DETECTED</span>
+                    <button onClick={triggerVisualScan} disabled={isScanning} style={{ color: '#97ce4c', background: 'transparent', border: '1px solid #97ce4c', padding: '2px 8px', cursor: isScanning ? 'wait' : 'pointer' }}>
+                        {isScanning ? 'SCANNING...' : 'SCAN'}
+                    </button>
+                </div>
+
+                <div style={{ fontStyle: 'italic', marginBottom: '15px', opacity: 0.8 }}>
+                    {isScanning ? '> Sweeping local sector for lifeforms...' : `> Tracking ${devices.length} active entities.`}
+                </div>
+
+                {devices && devices.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        {devices.map((dev, i) => {
+                            const isKnown = dev.name && dev.name.trim() !== '' && dev.name.toLowerCase() !== 'unknown';
+                            const highlightColor = isKnown ? '#f0e14a' : '#97ce4c';
+                            return (
+                                <div key={i} style={{ display: 'flex', padding: '5px 0', borderBottom: '1px dashed rgba(151, 206, 76, 0.3)' }}>
+                                    <span style={{ width: '130px', flexShrink: 0, color: '#97ce4c' }}>{dev.ip}</span>
+                                    <span style={{ width: '150px', flexShrink: 0, opacity: 0.7, color: '#97ce4c' }}>{dev.mac || 'UNKNOWN_MAC'}</span>
+                                    <span style={{ color: highlightColor, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        {isKnown ? dev.name.toUpperCase() : 'UNKNOWN_ENTITY'}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div style={{ fontStyle: 'italic', marginTop: '10px' }}>
+                        {!isScanning && '> No lifeforms detected.'}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div
             className={`dashboard-panel local-devices ${theme === 'cyberpunk' ? 'cp-panel' : theme === 'material' ? 'md-panel' : theme === 'system7' ? 's7-panel' : ''}`}
